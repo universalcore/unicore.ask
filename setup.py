@@ -14,7 +14,7 @@ with open(os.path.join(here, 'VERSION')) as f:
 
 setup(name='unicore.ask',
       version=version,
-      description='User authentication and data storage for Universal Core',
+      description='Universal Core REST service for Questions and Surveys.',
       long_description=README,
       classifiers=[
           "Programming Language :: Python",
