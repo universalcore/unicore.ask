@@ -1,7 +1,6 @@
 import uuid
 
-from unicore.hub.service.models import App
-from unicore.hub.service.tests import BaseTestCase
+from unicore.ask.service.tests import BaseTestCase
 
 
 class QuestionApiTestCase(BaseTestCase):

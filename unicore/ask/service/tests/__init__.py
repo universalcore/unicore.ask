@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from webtest import TestApp
 
-from unicore.hub.service import main
+from unicore.ask.service import main
 
 
 config_file_path = os.path.join(os.path.dirname(__file__), 'test.ini')
@@ -14,7 +14,7 @@ def get_test_settings():
     here = os.path.dirname(__file__)
     config = ConfigParser()
     config.read(config_file_path)
-    settings = dict(config.items('app:unicore.hub.service',
+    settings = dict(config.items('app:unicore.ask.service',
                                  vars={'here': here}))
     return (here, config_file_path, settings)
 

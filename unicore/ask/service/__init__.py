@@ -1,7 +1,4 @@
 from pyramid.config import Configurator
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
 
 
 def main(global_config, **settings):
