@@ -36,6 +36,4 @@ setup(name='unicore.ask',
       entry_points="""\
       [paste.app_factory]
       main = unicore.ask.service:main
-      [console_scripts]
-      askservice=unicore.ask.service.commands:in_app_env
       """)
