@@ -1,1 +1,93 @@
-# models go here
+from uuid import uuid4, UUID
+
+from pyramid.httpexceptions import HTTPUnauthorized
+from sqlalchemy import Column, Unicode, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
+from sqlalchemy_utils import (
+    PasswordType, JSONType, ScalarListType, UUIDType)
+
+from unicore.ask.service import Base
+
+
+class UUIDMixin(object):
+    _uuid = Column(
+        UUIDType(binary=False), name='uuid', default=uuid4,
+        primary_key=True)
+
+    @property
+    def uuid(self):
+        return self._uuid.hex
+
+    @uuid.setter
+    def uuid(self, value):
+        if isinstance(value, UUID):
+            self._uuid = value
+        else:
+            self._uuid = UUID(hex=value)
+
+    @classmethod
+    def get_authenticated_object(cls, request):
+        [uuid] = (request.authenticated_userid, )
+        if uuid is None:
+            raise HTTPUnauthorized()
+
+        return request.db.query(cls).get(uuid)
+
+
+class QuestionResponses(Base, UUIDMixin):
+    __tablename__ = 'question_responses'
+
+    text = Column(Unicode(255), nullable=False)
+    question_option_id = Column(
+        UUIDType(binary=False), ForeignKey('question_options.uuid'),
+        nullable=False)
+
+    def to_dict(self):
+        return {
+            'uuid': self.uuid,
+            'text': self.text,
+        }
+
+
+class QuestionOption(Base, UUIDMixin):
+    __tablename__ = 'question_options'
+
+    title = Column(Unicode(255), nullable=True)
+    short_name = Column(Unicode(255), nullable=True)
+    question_id = Column(
+        UUIDType(binary=False), ForeignKey('questions.uuid'), nullable=False)
+    responses = relationship(
+        QuestionResponses, backref='questions', lazy="dynamic")
+
+    def to_dict(self):
+        return {
+            'uuid': self.uuid,
+            'title': self.title,
+            'short_name': self.short_name,
+            'responses': [response.to_dict() for response in self.responses]
+        }
+
+
+class Question(Base, UUIDMixin):
+    __tablename__ = 'questions'
+
+    question_types = (
+        'free_text',
+        'multiple_choice',
+    )
+
+    title = Column(Unicode(255), nullable=False)
+    short_name = Column(Unicode(255), nullable=True)
+    multiple = Column(Boolean(255), default=True)
+    question_type = Column(Unicode(255), nullable=False)
+    options = relationship(QuestionOption, backref='questions', lazy="dynamic")
+
+    def to_dict(self):
+        return {
+            'uuid': self.uuid,
+            'title': self.title,
+            'short_name': self.short_name,
+            'multiple': self.multiple,
+            'question_type': self.question_type,
+            'options': [option.to_dict() for option in self.options]
+        }
