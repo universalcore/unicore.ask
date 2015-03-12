@@ -55,11 +55,23 @@ class QuestionApiTestCase(DBTestCase):
 
         self.db.commit()
 
-    def test_view(self):
+    def test_free_text_question(self):
         resp = self.app.get(
             '/questions/%s' % self.question_1.uuid)
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, self.question_1.to_dict())
+
+    def test_multiple_choice_question(self):
+        resp = self.app.get(
+            '/questions/%s' % self.question_2.uuid)
+        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(resp.json_body, self.question_2.to_dict())
+
+    def test_multiple_choice_question_with_multiple_response(self):
+        resp = self.app.get(
+            '/questions/%s' % self.question_3.uuid)
+        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(resp.json_body, self.question_3.to_dict())
 
     def test_edit(self):
         # change non-privileged fields
