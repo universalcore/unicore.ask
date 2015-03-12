@@ -55,6 +55,9 @@ class QuestionApiTestCase(DBTestCase):
 
         self.db.commit()
 
+    def test_question_not_found(self):
+        self.app.get('/questions/%s' % uuid.uuid4(), status=404)
+
     def test_free_text_question(self):
         resp = self.app.get(
             '/questions/%s' % self.question_1.uuid)
