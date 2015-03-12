@@ -3,8 +3,8 @@ from uuid import uuid4, UUID
 from pyramid.httpexceptions import HTTPUnauthorized
 from sqlalchemy import Column, Unicode, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy_utils import (
-    PasswordType, JSONType, ScalarListType, UUIDType)
+from sqlalchemy_utils import UUIDType
+
 
 from unicore.ask.service import Base
 
