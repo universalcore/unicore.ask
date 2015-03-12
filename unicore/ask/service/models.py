@@ -25,7 +25,7 @@ class UUIDMixin(object):
             self._uuid = UUID(hex=value)
 
 
-class QuestionResponses(Base, UUIDMixin):
+class QuestionResponse(Base, UUIDMixin):
     __tablename__ = 'question_responses'
 
     text = Column(Unicode(255), nullable=False)
@@ -49,7 +49,7 @@ class QuestionOption(Base, UUIDMixin):
     question_id = Column(
         UUIDType(binary=False), ForeignKey('questions.uuid'), nullable=False)
     responses = relationship(
-        QuestionResponses, backref='questions', lazy="dynamic")
+        QuestionResponse, backref='question_options', lazy="dynamic")
 
     def to_dict(self):
         return {
