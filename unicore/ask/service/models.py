@@ -1,6 +1,5 @@
 from uuid import uuid4, UUID
 
-from pyramid.httpexceptions import HTTPUnauthorized
 from sqlalchemy import Column, Unicode, Boolean, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
@@ -24,14 +23,6 @@ class UUIDMixin(object):
             self._uuid = value
         else:
             self._uuid = UUID(hex=value)
-
-    @classmethod
-    def get_authenticated_object(cls, request):
-        [uuid] = (request.authenticated_userid, )
-        if uuid is None:
-            raise HTTPUnauthorized()
-
-        return request.db.query(cls).get(uuid)
 
 
 class QuestionResponses(Base, UUIDMixin):
