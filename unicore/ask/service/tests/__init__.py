@@ -40,19 +40,7 @@ def make_app(working_dir, config_file_path, settings,
     return app
 
 
-class BaseTestCase(TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        # set up app
-        working_dir, config_file_path, settings = get_test_settings()
-        cls.working_dir = working_dir
-        cls.config_file_path = config_file_path
-        cls.settings = settings
-        cls.app = make_app(
-            working_dir=working_dir,
-            config_file_path=config_file_path,
-            settings=settings)
+class DBTestCase(TestCase):
 
     def create_model_object(self, model, session=None, **attrs):
         obj = model()
@@ -63,9 +51,6 @@ class BaseTestCase(TestCase):
             session.add(obj)
 
         return obj
-
-
-class DBTestCase(BaseTestCase):
 
     @classmethod
     def setUpClass(cls):
