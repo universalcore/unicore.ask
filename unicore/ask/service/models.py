@@ -1,7 +1,7 @@
 from uuid import uuid4, UUID
 
 from pyramid.httpexceptions import HTTPUnauthorized
-from sqlalchemy import Column, Unicode, Boolean, ForeignKey
+from sqlalchemy import Column, Unicode, Boolean, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
 
@@ -54,6 +54,7 @@ class QuestionOption(Base, UUIDMixin):
 
     title = Column(Unicode(255), nullable=True)
     short_name = Column(Unicode(255), nullable=True)
+    responses_count = Column(Integer())
     question_id = Column(
         UUIDType(binary=False), ForeignKey('questions.uuid'), nullable=False)
     responses = relationship(
@@ -64,7 +65,7 @@ class QuestionOption(Base, UUIDMixin):
             'uuid': self.uuid,
             'title': self.title,
             'short_name': self.short_name,
-            'responses': [response.to_dict() for response in self.responses]
+            'responses_count': self.responses_count,
         }
 
 
