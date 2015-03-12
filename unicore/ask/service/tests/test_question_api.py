@@ -55,6 +55,14 @@ class QuestionApiTestCase(DBTestCase):
 
         self.db.commit()
 
+    def test_uuid(self):
+        the_uuid = self.question_1._uuid
+        self.assertEqual(the_uuid, uuid.UUID(self.question_1.uuid))
+        self.question_1.uuid = self.question_1.uuid
+        self.assertEqual(the_uuid, self.question_1._uuid)
+        self.question_1.uuid = uuid.UUID(self.question_1.uuid)
+        self.assertEqual(the_uuid, self.question_1._uuid)
+
     def test_question_not_found(self):
         self.app.get('/questions/%s' % uuid.uuid4(), status=404)
 
