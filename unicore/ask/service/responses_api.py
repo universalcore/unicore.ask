@@ -23,7 +23,7 @@ def get_responses(request):
         raise NotFound
 
     return request.db.query(QuestionResponse).filter_by(
-        question_id=question_uuid)
+        question_id=question_uuid).order_by('question_id')
 
 
 @resource(
