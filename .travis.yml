@@ -1,0 +1,20 @@
+language: python
+python:
+  - "2.7"
+before_script:
+  - psql -c 'create database unicore_ask_test;' -U postgres
+install:
+  - pip install -r requirements-dev.txt --use-wheel
+  - pip install -e . --use-wheel
+script:
+  - ./run_tests.sh
+after_success:
+  - coveralls
+deploy:
+  provider: pypi
+  user: Praekelt
+  password:
+    secure: F8v9C7UyNhWO5tH29C2NEWGtmebPP4teyg1ZGf3MuLVuULFa81HC3V1YMcF6a9LLmco7yI/bcApSX0bixllwAs4wtqkNavwcom6IyKCnOB8koDc3gYm5YAahbdRkV7OQlifAW5uqCcHkqlkLVKscbeZ6ZUxeEDXaLQJcVRX/ip8=
+  on:
+    tags: true
+    all_branches: true
