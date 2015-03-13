@@ -60,16 +60,28 @@ class ResponsesApiTestCase(DBTestCase):
             options=[])
         self.db.flush()
 
-        self.create_question_option(
+        self.sport_option_1 = self.create_question_option(
             self.db, title='cricket', question_id=self.question_3.uuid)
-        self.create_question_option(
+        self.sport_option_2 = self.create_question_option(
             self.db, title='rugby', question_id=self.question_3.uuid)
-        self.create_question_option(
+        self.sport_option_3 = self.create_question_option(
             self.db, title='soccer', question_id=self.question_3.uuid)
-        self.create_question_option(
+        self.sport_option_4 = self.create_question_option(
             self.db, title='tennis', question_id=self.question_3.uuid)
-        self.create_question_option(
+        self.sport_option_5 = self.create_question_option(
             self.db, title='other', question_id=self.question_3.uuid)
+        self.db.flush()
+        self.question_3_response_1 = self.create_question_response(
+            self.db,
+            question_id=self.question_3.uuid,
+            question_option_id=self.sport_option_1.uuid,
+            text='cricket')
+        self.question_3_response_2 = self.create_question_response(
+            self.db,
+            question_id=self.question_3.uuid,
+            question_option_id=self.sport_option_4.uuid,
+            text='tennis')
+        self.db.flush()
 
         self.db.commit()
 
@@ -98,11 +110,20 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, [self.question_2_response.to_dict()])
 
-    def test_multiple_choice_question_with_multiple_response(self):
+    def test_multiple_choice_question_with_multiple_responses(self):
         resp = self.app.get(
-            '/questions/%s' % self.question_3.uuid)
+            '/response/%s' % self.question_3_response_1.uuid)
         self.assertEqual(resp.status_int, 200)
-        self.assertEqual(resp.json_body, self.question_3.to_dict())
+        self.assertEqual(resp.json_body, self.question_3_response_1.to_dict())
+        resp = self.app.get(
+            '/response/%s' % self.question_3_response_2.uuid)
+        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(resp.json_body, self.question_3_response_2.to_dict())
+
+        resp = self.app.get(
+            '/responses/%s' % self.question_3.uuid)
+        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(len(resp.json_body), 2)
 
     def test_edit(self):
         # change non-privileged fields
