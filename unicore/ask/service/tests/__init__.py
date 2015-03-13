@@ -87,6 +87,7 @@ class DBTestCase(TestCase):
         cls.transaction_context.stop()
 
     def setUp(self):
+        self.app.reset()
         self.transaction = self.__class__.connection.begin()
         self.db = self.__class__.sessionmaker()
 
