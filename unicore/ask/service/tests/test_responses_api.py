@@ -17,6 +17,8 @@ class ResponsesApiTestCase(DBTestCase):
 
     def setUp(self):
         super(ResponsesApiTestCase, self).setUp()
+
+        # Create Free Text Question
         self.question_1 = self.create_question(
             self.db, title='What is your name', short_name='name',
             question_type='free_text',
@@ -32,6 +34,7 @@ class ResponsesApiTestCase(DBTestCase):
             text='joe soap')
         self.db.flush()
 
+        # Create Multiple Choice Question (radio)
         self.question_2 = self.create_question(
             self.db, title='What is your age', short_name='age',
             question_type='multiple_choice',
@@ -54,6 +57,7 @@ class ResponsesApiTestCase(DBTestCase):
             text='30-49')
         self.db.flush()
 
+        # Create Multiple Choice Question (multiple select)
         self.question_3 = self.create_question(
             self.db, title='Which sports do you watch', short_name='sports',
             multiple=True, question_type='multiple_choice',
@@ -126,7 +130,6 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(len(resp.json_body), 2)
 
     def test_edit(self):
-        # change non-privileged fields
         resp = self.app.put_json(
             '/response/%s' % uuid.uuid4().hex,
             params={'text': 'foo2'})
