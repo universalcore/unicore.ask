@@ -93,13 +93,13 @@ class ResponsesApiTestCase(DBTestCase):
     def test_edit(self):
         # change non-privileged fields
         resp = self.app.put_json(
-            '/questions/%s' % uuid.uuid4().hex,
-            params={'title': 'foo2'})
+            '/response/%s' % uuid.uuid4().hex,
+            params={'text': 'foo2'})
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, {})
 
     def test_create(self):
-        data = {'title': 'foobar'}
+        data = {'text': 'foobar'}
         resp = self.app.post_json(
-            '/questions', params=data)
+            '/responses/%s' % uuid.uuid4().hex, params=data)
         self.assertEqual(resp.json_body, {})
