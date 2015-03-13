@@ -26,7 +26,9 @@ class ResponsesApiTestCase(DBTestCase):
             self.db, question_id=self.question_1.uuid)
         self.db.flush()
         self.question_1_response = self.create_question_response(
-            self.db, question_option_id=self.question_1_option.uuid,
+            self.db,
+            question_id=self.question_1.uuid,
+            question_option_id=self.question_1_option.uuid,
             text='joe soap')
         self.db.flush()
 
@@ -36,14 +38,21 @@ class ResponsesApiTestCase(DBTestCase):
             options=[])
         self.db.flush()
 
-        self.create_question_option(
+        self.age_option_1 = self.create_question_option(
             self.db, title='<18', question_id=self.question_2.uuid)
-        self.create_question_option(
+        self.age_option_2 = self.create_question_option(
             self.db, title='18-29', question_id=self.question_2.uuid)
-        self.create_question_option(
+        self.age_option_3 = self.create_question_option(
             self.db, title='30-49', question_id=self.question_2.uuid)
-        self.create_question_option(
+        self.age_option_4 = self.create_question_option(
             self.db, title='50+', question_id=self.question_2.uuid)
+        self.db.flush()
+        self.question_2_response = self.create_question_response(
+            self.db,
+            question_id=self.question_2.uuid,
+            question_option_id=self.age_option_3.uuid,
+            text='30-49')
+        self.db.flush()
 
         self.question_3 = self.create_question(
             self.db, title='Which sports do you watch', short_name='sports',
@@ -74,15 +83,20 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body, self.question_1_response.to_dict())
 
         resp = self.app.get(
-            '/responses/%s' % self.question_1_option.uuid)
+            '/responses/%s' % self.question_1.uuid)
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, [self.question_1_response.to_dict()])
 
     def test_multiple_choice_question(self):
         resp = self.app.get(
-            '/questions/%s' % self.question_2.uuid)
+            '/response/%s' % self.question_2_response.uuid)
         self.assertEqual(resp.status_int, 200)
-        self.assertEqual(resp.json_body, self.question_2.to_dict())
+        self.assertEqual(resp.json_body, self.question_2_response.to_dict())
+
+        resp = self.app.get(
+            '/responses/%s' % self.question_2.uuid)
+        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(resp.json_body, [self.question_2_response.to_dict()])
 
     def test_multiple_choice_question_with_multiple_response(self):
         resp = self.app.get(

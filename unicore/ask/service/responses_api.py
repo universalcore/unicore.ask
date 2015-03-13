@@ -1,7 +1,7 @@
 from cornice.resource import resource, view
 from pyramid.exceptions import NotFound
 
-from unicore.ask.service.models import QuestionResponse
+from unicore.ask.service.models import QuestionResponse, Question
 
 
 def get_response_object(request):
@@ -15,13 +15,19 @@ def get_response_object(request):
 
 
 def get_responses(request):
-    question_option_uuid = request.matchdict['question_option_uuid']
+    question_uuid = request.matchdict['question_uuid']
+
+    question = request.db.query(Question).get(question_uuid)
+
+    if question is None:
+        raise NotFound
+
     return request.db.query(QuestionResponse).filter_by(
-        question_option_id=question_option_uuid)
+        question_id=question_uuid)
 
 
 @resource(
-    collection_path='/responses/{question_option_uuid}',
+    collection_path='/responses/{question_uuid}',
     path='/response/{uuid}')
 class QuestionResponseResource(object):
 
