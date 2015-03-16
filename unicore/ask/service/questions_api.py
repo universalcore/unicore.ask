@@ -1,7 +1,8 @@
 from cornice.resource import resource, view
 from pyramid.exceptions import NotFound
 
-from unicore.ask.service.models import Question
+from unicore.ask.service.models import Question, QuestionOption
+from unicore.ask.service.schema import QuestionSchema
 
 
 def get_app_object(request):
@@ -22,7 +23,26 @@ class QuestionResource(object):
 
     @view(renderer='json')
     def collection_post(self):
-        return {}
+        question = Question()
+        self.request.db.add(question)
+        valid_data = QuestionSchema().deserialize(self.request.json_body)
+        for attr, value in valid_data.iteritems():
+            setattr(question, attr, value)
+
+        self.request.db.flush()
+
+        # Automatically create an option for Free Text question
+        if question.question_type == 'free_text':
+            option = QuestionOption(
+                question_id=question.uuid,
+                title=question.title,
+                short_name=question.short_name)
+            self.request.db.add(option)
+            self.request.db.flush()
+
+        new_data = question.to_dict()
+        self.request.response.status_int = 201
+        return new_data
 
     @view(renderer='json')
     def get(self):

@@ -104,3 +104,6 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(
             resp.json_body['question_type'], data['question_type'])
         self.assertEqual(resp.json_body['options'][0]['responses_count'], 0)
+        self.assertEqual(resp.json_body['options'][0]['title'], data['title'])
+        self.assertEqual(
+            resp.json_body['options'][0]['short_name'], data['short_name'])

@@ -49,7 +49,7 @@ class QuestionOption(Base, UUIDMixin):
 
     title = Column(Unicode(255), nullable=True)
     short_name = Column(Unicode(255), nullable=True)
-    responses_count = Column(Integer())
+    responses_count = Column(Integer(), default=0)
     question_id = Column(
         UUIDType(binary=False), ForeignKey('questions.uuid'), nullable=False)
     responses = relationship(
@@ -67,10 +67,13 @@ class QuestionOption(Base, UUIDMixin):
 class Question(Base, UUIDMixin):
     __tablename__ = 'questions'
 
+    # Validation
     question_types = (
         'free_text',
         'multiple_choice',
     )
+    title_length = 255
+    short_name_length = 255
 
     title = Column(Unicode(255), nullable=False)
     short_name = Column(Unicode(255), nullable=True)
