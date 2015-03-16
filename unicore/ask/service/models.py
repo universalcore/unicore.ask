@@ -77,6 +77,8 @@ class Question(Base, UUIDMixin):
     multiple = Column(Boolean(255), default=True)
     question_type = Column(Unicode(255), nullable=False)
     options = relationship(QuestionOption, backref='questions', lazy="dynamic")
+    responses = relationship(
+        QuestionResponse, backref='questions', lazy="dynamic")
 
     def to_dict(self):
         return {

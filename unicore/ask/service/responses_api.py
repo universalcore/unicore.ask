@@ -22,8 +22,7 @@ def get_responses(request):
     if question is None:
         raise NotFound
 
-    return request.db.query(QuestionResponse).filter_by(
-        question_id=question_uuid).order_by('question_id')
+    return question.responses.order_by('question_id')
 
 
 @resource(
