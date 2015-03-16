@@ -93,7 +93,14 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body, {})
 
     def test_create(self):
-        data = {'title': 'foobar'}
+        data = {
+            'title': 'What is your name',
+            'short_name': 'name',
+            'question_type': 'free_text'}
         resp = self.app.post_json(
             '/questions', params=data)
-        self.assertEqual(resp.json_body, {})
+        self.assertEqual(resp.json_body['title'], data['title'])
+        self.assertEqual(resp.json_body['short_name'], data['short_name'])
+        self.assertEqual(
+            resp.json_body['question_type'], data['question_type'])
+        self.assertEqual(resp.json_body['options'][0]['responses_count'], 0)
