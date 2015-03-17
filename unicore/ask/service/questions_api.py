@@ -27,7 +27,8 @@ class QuestionResource(object):
         self.request.db.add(question)
 
         for attr, value in self.request.validated.iteritems():
-            setattr(question, attr, value)
+            if not attr == 'options':
+                setattr(question, attr, value)
         self.request.db.flush()
 
         # Automatically create an option for Free Text question
@@ -38,6 +39,12 @@ class QuestionResource(object):
                 short_name=question.short_name)
             self.request.db.add(option)
             self.request.db.flush()
+        else:
+            for option in self.request.validated['options']:
+                an_option = QuestionOption()
+                for attr, value in option.iteritems():
+                    setattr(an_option, attr, value)
+                question.options.append(an_option)
 
         new_data = question.to_dict()
         self.request.response.status_int = 201

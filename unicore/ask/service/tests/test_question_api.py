@@ -130,6 +130,7 @@ class QuestionApiTestCase(DBTestCase):
             '"unknown" is not one of free_text, multiple_choice')
 
     def test_create_multiple_choice_invalid(self):
+        # No options specified
         data = {
             'title': 'What is your name',
             'short_name': 'name',
@@ -139,3 +140,38 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(
             resp.json_body['errors'][0]['description'],
             'Atleast 2 options are required')
+
+        # Less than 2 options specified
+        data = {
+            'title': 'What is your age',
+            'short_name': 'age',
+            'question_type': 'multiple_choice',
+            'options': [{'title': 'very old'}]
+            }
+        resp = self.app.post_json(
+            '/questions', params=data, status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            'Atleast 2 options are required')
+
+    def test_create_multiple_choice(self):
+        data = {
+            'title': 'What is your age',
+            'short_name': 'age',
+            'question_type': 'multiple_choice',
+            'options': [
+                {'title': '<16', 'short_name': 'yonger_than_16'},
+                {'title': '16-29', 'short_name': '17_to_29'},
+                {'title': '30-50', 'short_name': '30_to_50'},
+                {'title': '>50', 'short_name': 'older_than_50'},
+            ]}
+        resp = self.app.post_json('/questions', params=data, status=201)
+        self.assertEqual(resp.json_body['title'], data['title'])
+        self.assertEqual(resp.json_body['short_name'], data['short_name'])
+        self.assertEqual(
+            resp.json_body['question_type'], data['question_type'])
+        self.assertEqual(resp.json_body['options'][0]['responses_count'], 0)
+        self.assertEqual(resp.json_body['options'][0]['title'], '<16')
+        self.assertEqual(
+            resp.json_body['options'][0]['short_name'], 'yonger_than_16')
+        self.assertEqual(len(resp.json_body['options']), 4)
