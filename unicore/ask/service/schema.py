@@ -28,4 +28,5 @@ class QuestionSchema(colander.MappingSchema):
     question_type = colander.SchemaNode(
         colander.String(),
         validator=validators.question_type_validator)
+    multiple = colander.SchemaNode(colander.Boolean(), default=False)
     options = Options(validator=validators.options_validator, default=[])

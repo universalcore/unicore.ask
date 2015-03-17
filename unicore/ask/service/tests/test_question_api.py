@@ -116,6 +116,7 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body['short_name'], data['short_name'])
         self.assertEqual(
             resp.json_body['question_type'], data['question_type'])
+        self.assertEqual(resp.json_body['multiple'], False)
         self.assertEqual(resp.json_body['options'][0]['responses_count'], 0)
         self.assertEqual(resp.json_body['options'][0]['title'], data['title'])
         self.assertEqual(
@@ -171,6 +172,7 @@ class QuestionApiTestCase(DBTestCase):
             'title': 'What is your age',
             'short_name': 'age',
             'question_type': 'multiple_choice',
+            'multiple': True,
             'options': [
                 {'title': '<16', 'short_name': 'yonger_than_16'},
                 {'title': '16-29', 'short_name': '17_to_29'},
@@ -182,6 +184,7 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body['short_name'], data['short_name'])
         self.assertEqual(
             resp.json_body['question_type'], data['question_type'])
+        self.assertEqual(resp.json_body['multiple'], True)
         self.assertEqual(resp.json_body['options'][0]['responses_count'], 0)
         self.assertEqual(resp.json_body['options'][0]['title'], '<16')
         self.assertEqual(
@@ -195,6 +198,7 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body['short_name'], data['short_name'])
         self.assertEqual(
             resp.json_body['question_type'], data['question_type'])
+        self.assertEqual(resp.json_body['multiple'], True)
         self.assertEqual(resp.json_body['options'][0]['responses_count'], 0)
         self.assertEqual(resp.json_body['options'][0]['title'], '<16')
         self.assertEqual(
