@@ -38,13 +38,14 @@ class QuestionResource(object):
                 title=question.title,
                 short_name=question.short_name)
             self.request.db.add(option)
-            self.request.db.flush()
         else:
             for option in self.request.validated['options']:
                 an_option = QuestionOption()
                 for attr, value in option.iteritems():
                     setattr(an_option, attr, value)
                 question.options.append(an_option)
+
+        self.request.db.flush()
 
         new_data = question.to_dict()
         self.request.response.status_int = 201
