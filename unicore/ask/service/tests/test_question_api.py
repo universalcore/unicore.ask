@@ -128,3 +128,14 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(
             resp.json_body['errors'][0]['description'],
             '"unknown" is not one of free_text, multiple_choice')
+
+    def test_create_multiple_choice_invalid(self):
+        data = {
+            'title': 'What is your name',
+            'short_name': 'name',
+            'question_type': 'multiple_choice'}
+        resp = self.app.post_json(
+            '/questions', params=data, status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            'Atleast 2 options are required')

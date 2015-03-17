@@ -47,6 +47,10 @@ class QuestionResponse(Base, UUIDMixin):
 class QuestionOption(Base, UUIDMixin):
     __tablename__ = 'question_options'
 
+    # Validation
+    title_length = 255
+    short_name_length = 255
+
     title = Column(Unicode(255), nullable=True)
     short_name = Column(Unicode(255), nullable=True)
     responses_count = Column(Integer(), default=0)
