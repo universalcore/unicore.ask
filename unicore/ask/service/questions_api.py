@@ -21,14 +21,13 @@ class QuestionResource(object):
     def __init__(self, request):
         self.request = request
 
-    @view(renderer='json')
+    @view(renderer='json', schema=QuestionSchema)
     def collection_post(self):
         question = Question()
         self.request.db.add(question)
-        valid_data = QuestionSchema().deserialize(self.request.json_body)
-        for attr, value in valid_data.iteritems():
-            setattr(question, attr, value)
 
+        for attr, value in self.request.validated.iteritems():
+            setattr(question, attr, value)
         self.request.db.flush()
 
         # Automatically create an option for Free Text question

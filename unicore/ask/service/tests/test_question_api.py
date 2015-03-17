@@ -99,6 +99,7 @@ class QuestionApiTestCase(DBTestCase):
             'question_type': 'free_text'}
         resp = self.app.post_json(
             '/questions', params=data)
+        self.assertEqual(resp.status_int, 201)
         self.assertEqual(resp.json_body['title'], data['title'])
         self.assertEqual(resp.json_body['short_name'], data['short_name'])
         self.assertEqual(
@@ -107,3 +108,26 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body['options'][0]['title'], data['title'])
         self.assertEqual(
             resp.json_body['options'][0]['short_name'], data['short_name'])
+
+    def test_create_missing_fields(self):
+        resp = self.app.post_json(
+            '/questions', params={}, status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'], 'title is missing')
+        self.assertEqual(
+            resp.json_body['errors'][1]['description'],
+            'short_name is missing')
+        self.assertEqual(
+            resp.json_body['errors'][2]['description'],
+            'question_type is missing')
+
+    def test_create_invalid_question_type(self):
+        data = {
+            'title': 'What is your name',
+            'short_name': 'name',
+            'question_type': 'unknown'}
+        resp = self.app.post_json(
+            '/questions', params=data, status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            '"unknown" is not one of free_text, multiple_choice')
