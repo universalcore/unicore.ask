@@ -116,9 +116,6 @@ class QuestionApiTestCase(DBTestCase):
             resp.json_body['errors'][0]['description'], 'title is missing')
         self.assertEqual(
             resp.json_body['errors'][1]['description'],
-            'short_name is missing')
-        self.assertEqual(
-            resp.json_body['errors'][2]['description'],
             'question_type is missing')
 
     def test_create_invalid_question_type(self):
