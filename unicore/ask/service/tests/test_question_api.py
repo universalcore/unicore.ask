@@ -109,6 +109,18 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(
             resp.json_body['options'][0]['short_name'], data['short_name'])
 
+        # test get also returns same data
+        resp = self.app.get(
+            '/questions/%s' % resp.json_body['uuid'])
+        self.assertEqual(resp.json_body['title'], data['title'])
+        self.assertEqual(resp.json_body['short_name'], data['short_name'])
+        self.assertEqual(
+            resp.json_body['question_type'], data['question_type'])
+        self.assertEqual(resp.json_body['options'][0]['responses_count'], 0)
+        self.assertEqual(resp.json_body['options'][0]['title'], data['title'])
+        self.assertEqual(
+            resp.json_body['options'][0]['short_name'], data['short_name'])
+
     def test_create_missing_fields(self):
         resp = self.app.post_json(
             '/questions', params={}, status=400)
@@ -166,6 +178,19 @@ class QuestionApiTestCase(DBTestCase):
                 {'title': '>50', 'short_name': 'older_than_50'},
             ]}
         resp = self.app.post_json('/questions', params=data, status=201)
+        self.assertEqual(resp.json_body['title'], data['title'])
+        self.assertEqual(resp.json_body['short_name'], data['short_name'])
+        self.assertEqual(
+            resp.json_body['question_type'], data['question_type'])
+        self.assertEqual(resp.json_body['options'][0]['responses_count'], 0)
+        self.assertEqual(resp.json_body['options'][0]['title'], '<16')
+        self.assertEqual(
+            resp.json_body['options'][0]['short_name'], 'yonger_than_16')
+        self.assertEqual(len(resp.json_body['options']), 4)
+
+        # test get also returns same data
+        resp = self.app.get(
+            '/questions/%s' % resp.json_body['uuid'])
         self.assertEqual(resp.json_body['title'], data['title'])
         self.assertEqual(resp.json_body['short_name'], data['short_name'])
         self.assertEqual(
