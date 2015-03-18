@@ -2,7 +2,7 @@ from cornice.resource import resource, view
 from pyramid.exceptions import NotFound
 
 from unicore.ask.service.models import Question, QuestionOption
-from unicore.ask.service.schema import QuestionSchema, QuestionSchemaPut
+from unicore.ask.service.schema import QuestionSchema
 
 
 def get_app_object(request):
@@ -49,6 +49,10 @@ class QuestionResource(object):
             self.request.db.add(option)
         else:
             for option in self.request.validated['options']:
+                # ignore uuid on post
+                if 'uuid' in option:
+                    option.pop('uuid')
+
                 an_option = QuestionOption()
                 for attr, value in option.iteritems():
                     setattr(an_option, attr, value)
@@ -65,7 +69,7 @@ class QuestionResource(object):
         question = get_app_object(self.request)
         return question.to_dict()
 
-    @view(renderer='json', schema=QuestionSchemaPut)
+    @view(renderer='json', schema=QuestionSchema)
     def put(self):
         question = get_app_object(self.request)
         for attr, value in self.request.validated.iteritems():

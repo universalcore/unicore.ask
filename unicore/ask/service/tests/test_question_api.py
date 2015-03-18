@@ -87,7 +87,10 @@ class QuestionApiTestCase(DBTestCase):
     def test_edit_title(self):
         resp = self.app.put_json(
             '/questions/%s' % self.question_1.uuid,
-            params={'title': 'What is your name?'})
+            params={
+                'title': 'What is your name?',
+                'question_type': 'free_text',
+            })
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body['title'], 'What is your name?')
 
@@ -99,6 +102,7 @@ class QuestionApiTestCase(DBTestCase):
         data = {
             'title': 'What is your age sir?',
             'short_name': 'age',
+            'question_type': 'multiple_choice',
             'multiple': False,
             'options': [
                 {'uuid': self.age_less_than_18.uuid, 'title': 'less than 18'},
@@ -137,6 +141,10 @@ class QuestionApiTestCase(DBTestCase):
 
     def test_edit_multiple_choice_add_new_options(self):
         data = {
+            'title': 'What is your age sir?',
+            'short_name': 'age',
+            'question_type': 'multiple_choice',
+            'multiple': False,
             'options': [
                 {'uuid': self.age_less_than_18.uuid, 'title': 'less than 18'},
                 {'uuid': self.age_18_to_29.uuid, 'title': 'between 18 and 29'},
@@ -178,6 +186,10 @@ class QuestionApiTestCase(DBTestCase):
 
     def test_edit_multiple_choice_invalid_option_uuid(self):
         data = {
+            'title': 'What is your age sir?',
+            'short_name': 'age',
+            'question_type': 'multiple_choice',
+            'multiple': False,
             'options': [
                 {'uuid': self.age_less_than_18.uuid, 'title': 'less than 18'},
                 {'uuid': self.age_18_to_29.uuid, 'title': 'between 18 and 29'},
@@ -192,6 +204,10 @@ class QuestionApiTestCase(DBTestCase):
             'Shorter than minimum length 32')
 
         data = {
+            'title': 'What is your age sir?',
+            'short_name': 'age',
+            'question_type': 'multiple_choice',
+            'multiple': False,
             'options': [
                 {'uuid': self.age_less_than_18.uuid, 'title': 'less than 18'},
                 {'uuid': self.age_18_to_29.uuid, 'title': 'between 18 and 29'},
