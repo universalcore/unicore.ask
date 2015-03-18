@@ -176,6 +176,21 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(
             resp.json_body['options'][5]['title'], data['options'][5]['title'])
 
+    def test_edit_multiple_choice_invalid_option_uuid(self):
+        data = {
+            'options': [
+                {'uuid': self.age_less_than_18.uuid, 'title': 'less than 18'},
+                {'uuid': self.age_18_to_29.uuid, 'title': 'between 18 and 29'},
+                {'uuid': self.age_30_to_49.uuid, 'title': 'between 30 and 49'},
+                {'uuid': self.age_over_50.uuid, 'title': 'between 50 and 59'},
+                {'uuid': 'invaliduuid', 'title': 'between 50 and 59'},
+            ]}
+        resp = self.app.put_json(
+            '/questions/%s' % self.question_2.uuid, params=data, status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            'Shorter than minimum length 32')
+
     def test_create(self):
         data = {
             'title': 'What is your name',
