@@ -191,6 +191,20 @@ class QuestionApiTestCase(DBTestCase):
             resp.json_body['errors'][0]['description'],
             'Shorter than minimum length 32')
 
+        data = {
+            'options': [
+                {'uuid': self.age_less_than_18.uuid, 'title': 'less than 18'},
+                {'uuid': self.age_18_to_29.uuid, 'title': 'between 18 and 29'},
+                {'uuid': self.age_30_to_49.uuid, 'title': 'between 30 and 49'},
+                {'uuid': self.age_over_50.uuid, 'title': 'between 50 and 59'},
+                {'uuid': 'a' * 40, 'title': 'longer than maximum uuid'},
+            ]}
+        resp = self.app.put_json(
+            '/questions/%s' % self.question_2.uuid, params=data, status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            'Longer than maximum length 32')
+
     def test_create(self):
         data = {
             'title': 'What is your name',
