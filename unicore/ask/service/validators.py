@@ -12,6 +12,8 @@ option_title_validator = colander.All(
     colander.Length(max=QuestionOption.title_length))
 option_short_name_validator = colander.All(
     colander.Length(max=QuestionOption.short_name_length))
+option_uuid_validator = colander.All(
+    colander.Length(max=32, min=32))
 
 
 @colander.deferred
