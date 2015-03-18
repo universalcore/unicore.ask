@@ -27,13 +27,13 @@ class QuestionApiTestCase(DBTestCase):
             options=[])
         self.db.flush()
 
-        self.create_question_option(
+        self.age_less_than_18 = self.create_question_option(
             self.db, title='<18', question_id=self.question_2.uuid)
-        self.create_question_option(
+        self.age_18_to_29 = self.create_question_option(
             self.db, title='18-29', question_id=self.question_2.uuid)
-        self.create_question_option(
+        self.age_30_to_49 = self.create_question_option(
             self.db, title='30-49', question_id=self.question_2.uuid)
-        self.create_question_option(
+        self.age_over_50 = self.create_question_option(
             self.db, title='50+', question_id=self.question_2.uuid)
 
         self.question_3 = self.create_question(
@@ -84,13 +84,142 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, self.question_3.to_dict())
 
-    def test_edit(self):
-        # change non-privileged fields
+    def test_edit_title(self):
         resp = self.app.put_json(
-            '/questions/%s' % uuid.uuid4().hex,
-            params={'title': 'foo2'})
+            '/questions/%s' % self.question_1.uuid,
+            params={
+                'title': 'What is your name?',
+                'question_type': 'free_text',
+            })
         self.assertEqual(resp.status_int, 200)
-        self.assertEqual(resp.json_body, {})
+        self.assertEqual(resp.json_body['title'], 'What is your name?')
+
+        # test get also returns same data
+        resp = self.app.get('/questions/%s' % self.question_1.uuid)
+        self.assertEqual(resp.json_body['title'], 'What is your name?')
+
+    def test_edit_multiple_choice_existing_options(self):
+        data = {
+            'title': 'What is your age sir?',
+            'short_name': 'age',
+            'question_type': 'multiple_choice',
+            'multiple': False,
+            'options': [
+                {'uuid': self.age_less_than_18.uuid, 'title': 'less than 18'},
+                {'uuid': self.age_18_to_29.uuid, 'title': 'between 18 and 29'},
+                {'uuid': self.age_30_to_49.uuid, 'title': 'between 30 and 49'},
+                {'uuid': self.age_over_50.uuid, 'title': 'older than 50'}
+            ]}
+        resp = self.app.put_json(
+            '/questions/%s' % self.question_2.uuid, params=data)
+        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(resp.json_body['title'], data['title'])
+        self.assertEqual(resp.json_body['short_name'], data['short_name'])
+        self.assertEqual(resp.json_body['multiple'], data['multiple'])
+        self.assertEqual(
+            resp.json_body['options'][0]['title'], data['options'][0]['title'])
+        self.assertEqual(
+            resp.json_body['options'][1]['title'], data['options'][1]['title'])
+        self.assertEqual(
+            resp.json_body['options'][2]['title'], data['options'][2]['title'])
+        self.assertEqual(
+            resp.json_body['options'][3]['title'], data['options'][3]['title'])
+
+        # test get also returns same data
+        resp = self.app.get('/questions/%s' % self.question_2.uuid)
+        self.assertEqual(resp.json_body['title'], data['title'])
+        self.assertEqual(resp.json_body['short_name'], data['short_name'])
+        self.assertEqual(resp.json_body['multiple'], data['multiple'])
+        self.assertEqual(
+            resp.json_body['options'][0]['title'], data['options'][0]['title'])
+        self.assertEqual(
+            resp.json_body['options'][1]['title'], data['options'][1]['title'])
+        self.assertEqual(
+            resp.json_body['options'][2]['title'], data['options'][2]['title'])
+        self.assertEqual(
+            resp.json_body['options'][3]['title'], data['options'][3]['title'])
+
+    def test_edit_multiple_choice_add_new_options(self):
+        data = {
+            'title': 'What is your age sir?',
+            'short_name': 'age',
+            'question_type': 'multiple_choice',
+            'multiple': False,
+            'options': [
+                {'uuid': self.age_less_than_18.uuid, 'title': 'less than 18'},
+                {'uuid': self.age_18_to_29.uuid, 'title': 'between 18 and 29'},
+                {'uuid': self.age_30_to_49.uuid, 'title': 'between 30 and 49'},
+                {'uuid': self.age_over_50.uuid, 'title': 'between 50 and 59'},
+                {'title': 'between 50 and 59', 'short_name': 'between_50_59'},
+                {'title': 'older than 60', 'short_name': 'older_than_60'},
+            ]}
+        resp = self.app.put_json(
+            '/questions/%s' % self.question_2.uuid, params=data)
+        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(
+            resp.json_body['options'][0]['title'], data['options'][0]['title'])
+        self.assertEqual(
+            resp.json_body['options'][1]['title'], data['options'][1]['title'])
+        self.assertEqual(
+            resp.json_body['options'][2]['title'], data['options'][2]['title'])
+        self.assertEqual(
+            resp.json_body['options'][3]['title'], data['options'][3]['title'])
+        self.assertEqual(
+            resp.json_body['options'][4]['title'], data['options'][4]['title'])
+        self.assertEqual(
+            resp.json_body['options'][5]['title'], data['options'][5]['title'])
+
+        # test get also returns same data
+        resp = self.app.get('/questions/%s' % self.question_2.uuid)
+        self.assertEqual(
+            resp.json_body['options'][0]['title'], data['options'][0]['title'])
+        self.assertEqual(
+            resp.json_body['options'][1]['title'], data['options'][1]['title'])
+        self.assertEqual(
+            resp.json_body['options'][2]['title'], data['options'][2]['title'])
+        self.assertEqual(
+            resp.json_body['options'][3]['title'], data['options'][3]['title'])
+        self.assertEqual(
+            resp.json_body['options'][4]['title'], data['options'][4]['title'])
+        self.assertEqual(
+            resp.json_body['options'][5]['title'], data['options'][5]['title'])
+
+    def test_edit_multiple_choice_invalid_option_uuid(self):
+        data = {
+            'title': 'What is your age sir?',
+            'short_name': 'age',
+            'question_type': 'multiple_choice',
+            'multiple': False,
+            'options': [
+                {'uuid': self.age_less_than_18.uuid, 'title': 'less than 18'},
+                {'uuid': self.age_18_to_29.uuid, 'title': 'between 18 and 29'},
+                {'uuid': self.age_30_to_49.uuid, 'title': 'between 30 and 49'},
+                {'uuid': self.age_over_50.uuid, 'title': 'between 50 and 59'},
+                {'uuid': 'invaliduuid', 'title': 'between 50 and 59'},
+            ]}
+        resp = self.app.put_json(
+            '/questions/%s' % self.question_2.uuid, params=data, status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            'Shorter than minimum length 32')
+
+        data = {
+            'title': 'What is your age sir?',
+            'short_name': 'age',
+            'question_type': 'multiple_choice',
+            'multiple': False,
+            'options': [
+                {'uuid': self.age_less_than_18.uuid, 'title': 'less than 18'},
+                {'uuid': self.age_18_to_29.uuid, 'title': 'between 18 and 29'},
+                {'uuid': self.age_30_to_49.uuid, 'title': 'between 30 and 49'},
+                {'uuid': self.age_over_50.uuid, 'title': 'between 50 and 59'},
+                {'uuid': 'a' * 40, 'title': 'longer than maximum uuid'},
+            ]}
+        resp = self.app.put_json(
+            '/questions/%s' % self.question_2.uuid, params=data, status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            'Longer than maximum length 32')
 
     def test_create(self):
         data = {

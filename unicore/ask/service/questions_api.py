@@ -15,6 +15,15 @@ def get_app_object(request):
     return question
 
 
+def get_option_object(request, uuid):
+    option = request.db.query(QuestionOption).get(uuid)
+
+    if option is None:
+        raise NotFound
+
+    return option
+
+
 @resource(collection_path='/questions', path='/questions/{uuid}')
 class QuestionResource(object):
 
@@ -40,6 +49,10 @@ class QuestionResource(object):
             self.request.db.add(option)
         else:
             for option in self.request.validated['options']:
+                # ignore uuid on post
+                if 'uuid' in option:
+                    option.pop('uuid')
+
                 an_option = QuestionOption()
                 for attr, value in option.iteritems():
                     setattr(an_option, attr, value)
@@ -56,6 +69,26 @@ class QuestionResource(object):
         question = get_app_object(self.request)
         return question.to_dict()
 
-    @view(renderer='json')
+    @view(renderer='json', schema=QuestionSchema)
     def put(self):
-        return {}
+        question = get_app_object(self.request)
+        for attr, value in self.request.validated.iteritems():
+            if value is not None and not attr == 'options':
+                setattr(question, attr, value)
+
+        for option in self.request.validated.get('options', []):
+            uuid = option.pop('uuid')
+            # TODO: Delete existing option
+
+            if uuid is None:
+                # adding a new option
+                an_option = QuestionOption()
+                for attr, value in option.iteritems():
+                    setattr(an_option, attr, value)
+                question.options.append(an_option)
+            else:
+                # Edit existing option
+                an_option = get_option_object(self.request, uuid)
+                for attr, value in option.iteritems():
+                    setattr(an_option, attr, value)
+        return question.to_dict()
