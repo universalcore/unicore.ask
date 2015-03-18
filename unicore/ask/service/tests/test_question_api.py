@@ -85,12 +85,15 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body, self.question_3.to_dict())
 
     def test_edit(self):
-        # change non-privileged fields
         resp = self.app.put_json(
-            '/questions/%s' % uuid.uuid4().hex,
-            params={'title': 'foo2'})
+            '/questions/%s' % self.question_1.uuid,
+            params={'title': 'What is your name?'})
         self.assertEqual(resp.status_int, 200)
-        self.assertEqual(resp.json_body, {})
+        self.assertEqual(resp.json_body['title'], 'What is your name?')
+
+        # test get also returns same data
+        resp = self.app.get('/questions/%s' % self.question_1.uuid)
+        self.assertEqual(resp.json_body['title'], 'What is your name?')
 
     def test_create(self):
         data = {
