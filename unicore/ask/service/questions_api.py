@@ -74,7 +74,15 @@ class QuestionResource(object):
 
         for option in self.request.validated.get('options', []):
             uuid = option.pop('uuid')
-            an_option = get_option_object(self.request, uuid)
-            for attr, value in option.iteritems():
-                setattr(an_option, attr, value)
+            if uuid is None:
+                # adding a new option
+                an_option = QuestionOption()
+                for attr, value in option.iteritems():
+                    setattr(an_option, attr, value)
+                question.options.append(an_option)
+            else:
+                # Edit existing option
+                an_option = get_option_object(self.request, uuid)
+                for attr, value in option.iteritems():
+                    setattr(an_option, attr, value)
         return question.to_dict()

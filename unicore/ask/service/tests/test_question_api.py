@@ -135,6 +135,47 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(
             resp.json_body['options'][3]['title'], data['options'][3]['title'])
 
+    def test_edit_multiple_choice_add_new_options(self):
+        data = {
+            'options': [
+                {'uuid': self.age_less_than_18.uuid, 'title': 'less than 18'},
+                {'uuid': self.age_18_to_29.uuid, 'title': 'between 18 and 29'},
+                {'uuid': self.age_30_to_49.uuid, 'title': 'between 30 and 49'},
+                {'uuid': self.age_over_50.uuid, 'title': 'between 50 and 59'},
+                {'title': 'between 50 and 59', 'short_name': 'between_50_59'},
+                {'title': 'older than 60', 'short_name': 'older_than_60'},
+            ]}
+        resp = self.app.put_json(
+            '/questions/%s' % self.question_2.uuid, params=data)
+        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(
+            resp.json_body['options'][0]['title'], data['options'][0]['title'])
+        self.assertEqual(
+            resp.json_body['options'][1]['title'], data['options'][1]['title'])
+        self.assertEqual(
+            resp.json_body['options'][2]['title'], data['options'][2]['title'])
+        self.assertEqual(
+            resp.json_body['options'][3]['title'], data['options'][3]['title'])
+        self.assertEqual(
+            resp.json_body['options'][4]['title'], data['options'][4]['title'])
+        self.assertEqual(
+            resp.json_body['options'][5]['title'], data['options'][5]['title'])
+
+        # test get also returns same data
+        resp = self.app.get('/questions/%s' % self.question_2.uuid)
+        self.assertEqual(
+            resp.json_body['options'][0]['title'], data['options'][0]['title'])
+        self.assertEqual(
+            resp.json_body['options'][1]['title'], data['options'][1]['title'])
+        self.assertEqual(
+            resp.json_body['options'][2]['title'], data['options'][2]['title'])
+        self.assertEqual(
+            resp.json_body['options'][3]['title'], data['options'][3]['title'])
+        self.assertEqual(
+            resp.json_body['options'][4]['title'], data['options'][4]['title'])
+        self.assertEqual(
+            resp.json_body['options'][5]['title'], data['options'][5]['title'])
+
     def test_create(self):
         data = {
             'title': 'What is your name',

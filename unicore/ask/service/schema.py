@@ -35,7 +35,7 @@ class QuestionSchema(colander.MappingSchema):
 class QuestionOptionSchemaPut(colander.MappingSchema):
     uuid = colander.SchemaNode(
         colander.String(),
-        validator=validators.option_uuid_validator)
+        validator=validators.option_uuid_validator, missing=None)
     title = colander.SchemaNode(
         colander.String(),
         validator=validators.option_title_validator, missing=None)
