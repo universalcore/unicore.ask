@@ -74,6 +74,8 @@ class QuestionResource(object):
 
         for option in self.request.validated.get('options', []):
             uuid = option.pop('uuid')
+            # TODO: Delete existing option
+
             if uuid is None:
                 # adding a new option
                 an_option = QuestionOption()
