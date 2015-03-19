@@ -82,6 +82,7 @@ class Question(Base, UUIDMixin):
     title = Column(Unicode(255), nullable=False)
     short_name = Column(Unicode(255), nullable=True)
     multiple = Column(Boolean(255), default=True)
+    numeric = Column(Boolean(255), default=False)
     question_type = Column(Unicode(255), nullable=False)
     options = relationship(QuestionOption, backref='questions', lazy="dynamic")
     responses = relationship(
@@ -93,6 +94,7 @@ class Question(Base, UUIDMixin):
             'title': self.title,
             'short_name': self.short_name,
             'multiple': self.multiple,
+            'numeric': self.numeric,
             'question_type': self.question_type,
             'options': [option.to_dict() for option in self.options]
         }

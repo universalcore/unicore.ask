@@ -69,6 +69,16 @@ class QuestionApiTestCase(DBTestCase):
             self.db, title='Kenya', question_id=self.question_4.uuid)
         self.country_ireland = self.create_question_option(
             self.db, title='Ireland', question_id=self.question_4.uuid)
+        self.db.flush()
+
+        self.question_5 = self.create_question(
+            self.db, title='How old are you', short_name='age',
+            question_type='free_text', numeric=True,
+            options=[])
+        self.db.flush()
+        self.question_5_option = self.create_question_option(
+            self.db, question_id=self.question_5.uuid)
+        self.db.flush()
 
         self.db.commit()
 
@@ -385,3 +395,8 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(options[2]['title'], 'South Africa')
         self.assertEqual(options[3]['title'], 'Australia')
         self.assertEqual(len(resp.json_body['options']), 4)
+
+    def test_numeric_free_text_question(self):
+        resp = self.app.get(
+            '/questions/%s' % self.question_5.uuid)
+        self.assertEqual(resp.json_body, self.question_5.to_dict())

@@ -1,13 +1,13 @@
 """initial
 
-Revision ID: 2c3643010961
+Revision ID: 1433e55848a8
 Revises:
-Create Date: 2015-03-17 12:10:36.631615
+Create Date: 2015-03-19 19:10:20.110239
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '2c3643010961'
+revision = '1433e55848a8'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -24,6 +24,7 @@ def upgrade():
     sa.Column('title', sa.Unicode(length=255), nullable=False),
     sa.Column('short_name', sa.Unicode(length=255), nullable=True),
     sa.Column('multiple', sa.Boolean(create_constraint=255), nullable=True),
+    sa.Column('numeric', sa.Boolean(create_constraint=255), nullable=True),
     sa.Column('question_type', sa.Unicode(length=255), nullable=False),
     sa.PrimaryKeyConstraint('uuid')
     )
