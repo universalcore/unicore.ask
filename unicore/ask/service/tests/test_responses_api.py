@@ -129,13 +129,6 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(len(resp.json_body), 2)
 
-    def test_edit(self):
-        resp = self.app.put_json(
-            '/response/%s' % uuid.uuid4().hex,
-            params={'text': 'foo2'})
-        self.assertEqual(resp.status_int, 200)
-        self.assertEqual(resp.json_body, {})
-
     def test_create(self):
         data = {'text': 'foobar'}
         resp = self.app.post_json(

@@ -46,7 +46,3 @@ class QuestionResponseResource(object):
     def get(self):
         response = get_response_object(self.request)
         return response.to_dict()
-
-    @view(renderer='json')
-    def put(self):
-        return {}
