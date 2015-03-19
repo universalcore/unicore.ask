@@ -1,7 +1,9 @@
 from cornice.resource import resource, view
 from pyramid.exceptions import NotFound
 
-from unicore.ask.service.models import QuestionResponse, Question
+from unicore.ask.service.models import (
+    QuestionResponse, QuestionOption)
+from unicore.ask.service.schema import QuestionResponseSchema
 
 
 def get_response_object(request):
@@ -15,30 +17,50 @@ def get_response_object(request):
 
 
 def get_responses(request):
-    question_uuid = request.matchdict['question_uuid']
+    uuid = request.matchdict['option_uuid']
 
-    question = request.db.query(Question).get(question_uuid)
+    option = request.db.query(QuestionOption).get(uuid)
 
-    if question is None:
+    if option is None:
         raise NotFound
 
-    return question.responses.order_by('question_id')
+    return option.responses
+
+
+def get_option_object(request):
+    uuid = request.matchdict['option_uuid']
+    option = request.db.query(QuestionOption).get(uuid)
+
+    if option is None:
+        raise NotFound
+
+    return option
 
 
 @resource(
-    collection_path='/responses/{question_uuid}',
+    collection_path='/responses/{option_uuid}',
     path='/response/{uuid}')
 class QuestionResponseResource(object):
 
     def __init__(self, request):
         self.request = request
 
-    @view(renderer='json')
+    @view(renderer='json', schema=QuestionResponseSchema)
     def collection_post(self):
-        return {}
+        option = get_option_object(self.request)
+
+        response = QuestionResponse()
+        for attr, value in self.request.validated.iteritems():
+            setattr(response, attr, value)
+        response.question_id = option.question_id
+        option.responses.append(response)
+        self.request.db.flush()
+        return response.to_dict()
 
     @view(renderer='json')
     def collection_get(self):
+        # TODO: find a way to return question responses
+        # and not just option responses
         responses = get_responses(self.request)
         return [response.to_dict() for response in responses]
 

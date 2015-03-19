@@ -33,3 +33,8 @@ class QuestionSchema(colander.MappingSchema):
         validator=validators.question_type_validator)
     multiple = colander.SchemaNode(colander.Boolean(), default=False)
     options = Options(validator=validators.options_validator, default=[])
+
+
+class QuestionResponseSchema(colander.MappingSchema):
+    text = colander.SchemaNode(
+        colander.String())

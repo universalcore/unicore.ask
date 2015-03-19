@@ -99,7 +99,7 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body, self.question_1_response.to_dict())
 
         resp = self.app.get(
-            '/responses/%s' % self.question_1.uuid)
+            '/responses/%s' % self.question_1_option.uuid)
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, [self.question_1_response.to_dict()])
 
@@ -110,7 +110,7 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body, self.question_2_response.to_dict())
 
         resp = self.app.get(
-            '/responses/%s' % self.question_2.uuid)
+            '/responses/%s' % self.age_option_3.uuid)
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, [self.question_2_response.to_dict()])
 
@@ -124,13 +124,16 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, self.question_3_response_2.to_dict())
 
-        resp = self.app.get(
-            '/responses/%s' % self.question_3.uuid)
-        self.assertEqual(resp.status_int, 200)
-        self.assertEqual(len(resp.json_body), 2)
+        resp = self.app.get('/responses/%s' % self.sport_option_1.uuid)
+        self.assertEqual(
+            resp.json_body, [self.question_3_response_1.to_dict()])
+
+        resp = self.app.get('/responses/%s' % self.sport_option_4.uuid)
+        self.assertEqual(
+            resp.json_body, [self.question_3_response_2.to_dict()])
 
     def test_create(self):
         data = {'text': 'foobar'}
         resp = self.app.post_json(
-            '/responses/%s' % uuid.uuid4().hex, params=data)
-        self.assertEqual(resp.json_body, {})
+            '/responses/%s' % self.question_1_option.uuid, params=data)
+        self.assertEqual(resp.json_body['text'], data['text'])
