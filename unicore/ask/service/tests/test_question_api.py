@@ -53,6 +53,23 @@ class QuestionApiTestCase(DBTestCase):
         self.create_question_option(
             self.db, title='other', question_id=self.question_3.uuid)
 
+        self.question_4 = self.create_question(
+            self.db, title='Which country is the best', short_name='country',
+            multiple=True, question_type='multiple_choice',
+            options=[])
+        self.db.flush()
+
+        self.country_usa = self.create_question_option(
+            self.db, title='USA', question_id=self.question_4.uuid)
+        self.country_canada = self.create_question_option(
+            self.db, title='Canada', question_id=self.question_4.uuid)
+        self.country_brazil = self.create_question_option(
+            self.db, title='Brazil', question_id=self.question_4.uuid)
+        self.country_kenya = self.create_question_option(
+            self.db, title='Kenya', question_id=self.question_4.uuid)
+        self.country_ireland = self.create_question_option(
+            self.db, title='Ireland', question_id=self.question_4.uuid)
+
         self.db.commit()
 
     def test_uuid(self):
@@ -332,4 +349,39 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body['options'][0]['title'], '<16')
         self.assertEqual(
             resp.json_body['options'][0]['short_name'], 'yonger_than_16')
+        self.assertEqual(len(resp.json_body['options']), 4)
+
+    def test_delete_options(self):
+        data = {
+            'title': 'Which country is the best',
+            'short_name': 'country',
+            'question_type': 'multiple_choice',
+            'multiple': True,
+            'options': [
+                {'uuid': self.country_usa.uuid, 'title': 'United States of A'},
+                {'uuid': self.country_canada.uuid, 'title': 'Republic of C'},
+                {'title': 'South Africa', 'short_name': 'rsa'},
+                {'title': 'Australia', 'short_name': 'australia'},
+            ]}
+        resp = self.app.put_json(
+            '/questions/%s' % self.question_4.uuid, params=data)
+        options = resp.json_body['options']
+        self.assertEqual(resp.json_body['title'], data['title'])
+        self.assertEqual(resp.json_body['short_name'], data['short_name'])
+        self.assertEqual(options[0]['title'], 'United States of A')
+        self.assertEqual(options[1]['title'], 'Republic of C')
+        self.assertEqual(options[2]['title'], 'South Africa')
+        self.assertEqual(options[3]['title'], 'Australia')
+        self.assertEqual(len(resp.json_body['options']), 4)
+
+        # test get also returns same data
+        resp = self.app.get(
+            '/questions/%s' % resp.json_body['uuid'])
+        options = resp.json_body['options']
+        self.assertEqual(resp.json_body['title'], data['title'])
+        self.assertEqual(resp.json_body['short_name'], data['short_name'])
+        self.assertEqual(options[0]['title'], 'United States of A')
+        self.assertEqual(options[1]['title'], 'Republic of C')
+        self.assertEqual(options[2]['title'], 'South Africa')
+        self.assertEqual(options[3]['title'], 'Australia')
         self.assertEqual(len(resp.json_body['options']), 4)

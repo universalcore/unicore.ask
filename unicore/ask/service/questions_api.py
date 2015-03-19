@@ -76,9 +76,17 @@ class QuestionResource(object):
             if value is not None and not attr == 'options':
                 setattr(question, attr, value)
 
-        for option in self.request.validated.get('options', []):
+        validated_options = self.request.validated.get('options', [])
+        # Delete existing options
+        if question.question_type != 'free_text':
+            existing_options = [
+                o['uuid'] for o in validated_options if o['uuid']]
+            for option in question.options:
+                if option.uuid not in existing_options:
+                    self.request.db.delete(option)
+
+        for option in validated_options:
             uuid = option.pop('uuid')
-            # TODO: Delete existing option
 
             if uuid is None:
                 # adding a new option
