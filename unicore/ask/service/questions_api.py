@@ -77,13 +77,13 @@ class QuestionResource(object):
                 setattr(question, attr, value)
 
         validated_options = self.request.validated.get('options', [])
+
         # Delete existing options
-        if question.question_type != 'free_text':
-            existing_options = [
-                o['uuid'] for o in validated_options if o['uuid']]
-            for option in question.options:
-                if option.uuid not in existing_options:
-                    self.request.db.delete(option)
+        existing_options = [
+            o['uuid'] for o in validated_options if o['uuid']]
+        for option in question.options:
+            if option.uuid not in existing_options:
+                self.request.db.delete(option)
 
         for option in validated_options:
             uuid = option.pop('uuid')
