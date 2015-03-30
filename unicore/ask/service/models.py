@@ -55,13 +55,18 @@ class QuestionOption(Base, UUIDMixin):
     short_name = Column(Unicode(255), nullable=True)
     responses_count = Column(Integer(), default=0)
     question_id = Column(
-        UUIDType(binary=False), ForeignKey('questions.uuid'), nullable=False)
+        UUIDType(binary=False),
+        ForeignKey('questions.uuid'),
+        nullable=False)
     responses = relationship(
         QuestionResponse, backref='question_options', lazy="dynamic")
 
     def to_dict(self):
+        question_uuid = self.question_id.hex if isinstance(
+            self.question_id, UUID) else self.question_id
         return {
             'uuid': self.uuid,
+            'question_uuid': question_uuid,
             'title': self.title,
             'short_name': self.short_name,
             'responses_count': self.responses_count,
@@ -84,7 +89,9 @@ class Question(Base, UUIDMixin):
     multiple = Column(Boolean(255), default=True)
     numeric = Column(Boolean(255), default=False)
     question_type = Column(Unicode(255), nullable=False)
-    options = relationship(QuestionOption, backref='questions', lazy="dynamic")
+    options = relationship(
+        QuestionOption, backref='questions', lazy="dynamic",
+        cascade="all, delete, delete-orphan")
     responses = relationship(
         QuestionResponse, backref='questions', lazy="dynamic")
 

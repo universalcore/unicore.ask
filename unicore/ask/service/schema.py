@@ -7,6 +7,9 @@ class QuestionOptionSchema(colander.MappingSchema):
     uuid = colander.SchemaNode(
         colander.String(),
         validator=validators.option_uuid_validator, missing=None)
+    question_id = colander.SchemaNode(
+        colander.String(),
+        validator=validators.option_uuid_validator, missing=None)
     title = colander.SchemaNode(
         colander.String(),
         validator=validators.option_title_validator)
@@ -32,7 +35,9 @@ class QuestionSchema(colander.MappingSchema):
         colander.String(),
         validator=validators.question_type_validator)
     multiple = colander.SchemaNode(colander.Boolean(), default=False)
-    options = Options(validator=validators.options_validator, default=[])
+    numeric = colander.SchemaNode(colander.Boolean(), default=False)
+    options = Options(default=[], missing=[])
+    new_options = Options(default=[], missing=[])
 
 
 class QuestionResponseSchema(colander.MappingSchema):

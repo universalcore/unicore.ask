@@ -24,11 +24,18 @@ def get_option_object(request, uuid):
     return option
 
 
-@resource(collection_path='/questions', path='/questions/{uuid}')
+@resource(
+    collection_path='/questions',
+    path='/questions/{uuid}',
+    cors_origins=('*',))
 class QuestionResource(object):
 
     def __init__(self, request):
         self.request = request
+
+    @view(renderer='json')
+    def collection_get(self):
+        return [q.to_dict() for q in self.request.db.query(Question).all()]
 
     @view(renderer='json', schema=QuestionSchema)
     def collection_post(self):
@@ -69,6 +76,13 @@ class QuestionResource(object):
         question = get_app_object(self.request)
         return question.to_dict()
 
+    @view(renderer='json')
+    def delete(self):
+        question = get_app_object(self.request)
+        self.request.db.delete(question)
+        self.request.response.status_int = 204
+        return {}
+
     @view(renderer='json', schema=QuestionSchema)
     def put(self):
         question = get_app_object(self.request)
@@ -76,14 +90,14 @@ class QuestionResource(object):
             if value is not None and not attr == 'options':
                 setattr(question, attr, value)
 
-        validated_options = self.request.validated.get('options', [])
+        validated_options = self.request.validated.get('new_options', [])
 
         # Delete existing options
-        existing_options = [
-            o['uuid'] for o in validated_options if o['uuid']]
-        for option in question.options:
-            if option.uuid not in existing_options:
-                self.request.db.delete(option)
+        #existing_options = [
+        #    o['title'] for o in validated_options]
+        #for option in question.options:
+        #    if option.title not in existing_options:
+        #        self.request.db.delete(option)
 
         for option in validated_options:
             uuid = option.pop('uuid')
