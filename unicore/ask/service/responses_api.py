@@ -24,10 +24,18 @@ def get_responses(request):
 
     if question_uuid:
         question = request.db.query(Question).get(question_uuid)
+
+        if not question:
+            raise NotFound
+
         return question.responses
 
     if option_uuid:
         option = request.db.query(QuestionOption).get(option_uuid)
+
+        if not option:
+            raise NotFound
+
         return option.responses
 
 
