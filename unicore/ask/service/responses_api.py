@@ -58,6 +58,7 @@ class QuestionResponseResource(object):
             setattr(response, attr, value)
         response.question_id = option.question_id
         option.responses.append(response)
+        option.responses_count = QuestionOption.responses_count + 1
         self.request.db.flush()
         return response.to_dict()
 

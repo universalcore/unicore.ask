@@ -153,3 +153,7 @@ class ResponsesApiTestCase(DBTestCase):
         resp = self.app.post_json(
             '/responses', params=data)
         self.assertEqual(resp.json_body['text'], data['text'])
+
+        resp = self.app.get(
+            '/questions/%s' % self.question_1.uuid)
+        self.assertEqual(resp.json_body['options'][0]['responses_count'], 1)
