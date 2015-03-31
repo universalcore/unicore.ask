@@ -92,6 +92,11 @@ class Question(Base, UUIDMixin):
         'free_text',
         'multiple_choice',
     )
+    content_types = (
+        'page',
+        'category',
+        'localisation',
+    )
     title_length = 255
     short_name_length = 255
 
@@ -100,6 +105,7 @@ class Question(Base, UUIDMixin):
     multiple = Column(Boolean(255), default=True)
     numeric = Column(Boolean(255), default=False)
     question_type = Column(Unicode(255), nullable=False)
+    content_type = Column(Unicode(255), nullable=False)
     options = relationship(QuestionOption, backref='questions', lazy="dynamic")
     responses = relationship(
         QuestionResponse, backref='questions', lazy="dynamic")

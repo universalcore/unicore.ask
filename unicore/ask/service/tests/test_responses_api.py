@@ -23,7 +23,7 @@ class ResponsesApiTestCase(DBTestCase):
             self.db, title='What is your name', short_name='name',
             question_type='free_text', author_uuid=uuid.uuid4(),
             app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
-            options=[])
+            content_type='page', options=[])
         self.db.flush()
         self.question_1_option = self.create_question_option(
             self.db, question_id=self.question_1.uuid)
@@ -41,7 +41,7 @@ class ResponsesApiTestCase(DBTestCase):
             self.db, title='What is your age', short_name='age',
             question_type='multiple_choice', author_uuid=uuid.uuid4(),
             app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
-            options=[])
+            content_type='page', options=[])
         self.db.flush()
 
         self.age_option_1 = self.create_question_option(
@@ -67,7 +67,7 @@ class ResponsesApiTestCase(DBTestCase):
             multiple=True, question_type='multiple_choice',
             author_uuid=uuid.uuid4(), app_uuid=uuid.uuid4(),
             content_uuid=uuid.uuid4(),
-            options=[])
+            content_type='page', options=[])
         self.db.flush()
 
         self.sport_option_1 = self.create_question_option(
@@ -99,7 +99,7 @@ class ResponsesApiTestCase(DBTestCase):
             self.db, title='How old are you', short_name='age',
             question_type='free_text', numeric=True, author_uuid=uuid.uuid4(),
             app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
-            options=[])
+            content_type='page', options=[])
         self.db.flush()
         self.question_5_option = self.create_question_option(
             self.db, question_id=self.question_5.uuid)

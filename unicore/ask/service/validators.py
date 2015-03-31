@@ -7,6 +7,7 @@ question_title_validator = colander.All(
 question_short_name_validator = colander.All(
     colander.Length(max=Question.short_name_length))
 question_type_validator = colander.OneOf(Question.question_types)
+question_content_type_validator = colander.OneOf(Question.content_types)
 
 option_title_validator = colander.All(
     colander.Length(max=QuestionOption.title_length))

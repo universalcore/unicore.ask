@@ -17,7 +17,7 @@ class QuestionApiTestCase(DBTestCase):
             self.db, title='What is your name', short_name='name',
             question_type='free_text', author_uuid=uuid.uuid4(),
             app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
-            options=[])
+            content_type='page', options=[])
         self.db.flush()
         self.question_1_option = self.create_question_option(
             self.db, question_id=self.question_1.uuid)
@@ -26,7 +26,7 @@ class QuestionApiTestCase(DBTestCase):
             self.db, title='What is your age', short_name='age',
             question_type='multiple_choice', author_uuid=uuid.uuid4(),
             app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
-            options=[])
+            content_type='page', options=[])
         self.db.flush()
 
         self.age_less_than_18 = self.create_question_option(
@@ -43,7 +43,7 @@ class QuestionApiTestCase(DBTestCase):
             multiple=True, question_type='multiple_choice',
             author_uuid=uuid.uuid4(), app_uuid=uuid.uuid4(),
             content_uuid=uuid.uuid4(),
-            options=[])
+            content_type='page', options=[])
         self.db.flush()
 
         self.create_question_option(
@@ -62,7 +62,7 @@ class QuestionApiTestCase(DBTestCase):
             multiple=True, question_type='multiple_choice',
             author_uuid=uuid.uuid4(), app_uuid=uuid.uuid4(),
             content_uuid=uuid.uuid4(),
-            options=[])
+            content_type='page', options=[])
         self.db.flush()
 
         self.country_usa = self.create_question_option(
@@ -81,7 +81,7 @@ class QuestionApiTestCase(DBTestCase):
             self.db, title='How old are you', short_name='age',
             question_type='free_text', numeric=True, author_uuid=uuid.uuid4(),
             app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
-            options=[])
+            content_type='page', options=[])
         self.db.flush()
         self.question_5_option = self.create_question_option(
             self.db, question_id=self.question_5.uuid)
@@ -124,6 +124,7 @@ class QuestionApiTestCase(DBTestCase):
             params={
                 'title': 'What is your name?',
                 'question_type': 'free_text',
+                'content_type': 'page',
                 'app_uuid': uuid.uuid4().hex,
                 'author_uuid': uuid.uuid4().hex,
                 'content_uuid': uuid.uuid4().hex,
@@ -140,6 +141,7 @@ class QuestionApiTestCase(DBTestCase):
             'title': 'What is your age sir?',
             'short_name': 'age',
             'question_type': 'multiple_choice',
+            'content_type': 'page',
             'multiple': False,
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
@@ -184,6 +186,7 @@ class QuestionApiTestCase(DBTestCase):
             'title': 'What is your age sir?',
             'short_name': 'age',
             'question_type': 'multiple_choice',
+            'content_type': 'page',
             'multiple': False,
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
@@ -232,6 +235,7 @@ class QuestionApiTestCase(DBTestCase):
             'title': 'What is your age sir?',
             'short_name': 'age',
             'question_type': 'multiple_choice',
+            'content_type': 'page',
             'multiple': False,
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
@@ -253,6 +257,7 @@ class QuestionApiTestCase(DBTestCase):
             'title': 'What is your age sir?',
             'short_name': 'age',
             'question_type': 'multiple_choice',
+            'content_type': 'page',
             'multiple': False,
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
@@ -275,6 +280,7 @@ class QuestionApiTestCase(DBTestCase):
             'title': 'What is your name',
             'short_name': 'name',
             'question_type': 'free_text',
+            'content_type': 'page',
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
@@ -326,6 +332,7 @@ class QuestionApiTestCase(DBTestCase):
             'title': 'What is your name',
             'short_name': 'name',
             'question_type': 'unknown',
+            'content_type': 'unknown',
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
@@ -342,6 +349,7 @@ class QuestionApiTestCase(DBTestCase):
             'title': 'What is your name',
             'short_name': 'name',
             'question_type': 'multiple_choice',
+            'content_type': 'page',
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
@@ -357,6 +365,7 @@ class QuestionApiTestCase(DBTestCase):
             'title': 'What is your age',
             'short_name': 'age',
             'question_type': 'multiple_choice',
+            'content_type': 'page',
             'options': [{'title': 'very old'}],
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
@@ -373,6 +382,7 @@ class QuestionApiTestCase(DBTestCase):
             'title': 'What is your age',
             'short_name': 'age',
             'question_type': 'multiple_choice',
+            'content_type': 'page',
             'multiple': True,
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
@@ -414,6 +424,7 @@ class QuestionApiTestCase(DBTestCase):
             'title': 'Which country is the best',
             'short_name': 'country',
             'question_type': 'multiple_choice',
+            'content_type': 'page',
             'multiple': True,
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
