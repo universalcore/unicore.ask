@@ -2,8 +2,10 @@ from cornice.resource import resource, view
 from pyramid.exceptions import NotFound
 
 from unicore.ask.service.models import (
-    QuestionResponse, QuestionOption)
-from unicore.ask.service.schema import QuestionResponseSchema
+    Question, QuestionResponse, QuestionOption)
+from unicore.ask.service.schema import (
+    QuestionResponseSchema, QuestionResponseGetSchema)
+from unicore.ask.service.validators import response_get_uuid_validator
 
 
 def get_response_object(request):
@@ -17,18 +19,20 @@ def get_response_object(request):
 
 
 def get_responses(request):
-    uuid = request.matchdict['option_uuid']
+    question_uuid = request.validated.get('question_uuid')
+    option_uuid = request.validated.get('option_uuid')
 
-    option = request.db.query(QuestionOption).get(uuid)
+    if question_uuid:
+        question = request.db.query(Question).get(question_uuid)
+        return question.responses
 
-    if option is None:
-        raise NotFound
-
-    return option.responses
+    if option_uuid:
+        option = request.db.query(QuestionOption).get(option_uuid)
+        return option.responses
 
 
 def get_option_object(request):
-    uuid = request.matchdict['option_uuid']
+    uuid = request.validated['option_uuid']
     option = request.db.query(QuestionOption).get(uuid)
 
     if option is None:
@@ -38,7 +42,7 @@ def get_option_object(request):
 
 
 @resource(
-    collection_path='/responses/{option_uuid}',
+    collection_path='/responses',
     path='/response/{uuid}')
 class QuestionResponseResource(object):
 
@@ -57,10 +61,11 @@ class QuestionResponseResource(object):
         self.request.db.flush()
         return response.to_dict()
 
-    @view(renderer='json')
+    @view(
+        renderer='json',
+        schema=QuestionResponseGetSchema,
+        validators=response_get_uuid_validator)
     def collection_get(self):
-        # TODO: find a way to return question responses
-        # and not just option responses
         responses = get_responses(self.request)
         return [response.to_dict() for response in responses]
 

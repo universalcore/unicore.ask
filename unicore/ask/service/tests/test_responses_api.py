@@ -99,7 +99,7 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body, self.question_1_response.to_dict())
 
         resp = self.app.get(
-            '/responses/%s' % self.question_1_option.uuid)
+            '/responses?option_uuid=%s' % self.question_1_option.uuid)
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, [self.question_1_response.to_dict()])
 
@@ -110,7 +110,7 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body, self.question_2_response.to_dict())
 
         resp = self.app.get(
-            '/responses/%s' % self.age_option_3.uuid)
+            '/responses?option_uuid=%s' % self.age_option_3.uuid)
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, [self.question_2_response.to_dict()])
 
@@ -124,16 +124,32 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, self.question_3_response_2.to_dict())
 
-        resp = self.app.get('/responses/%s' % self.sport_option_1.uuid)
+        resp = self.app.get(
+            '/responses?option_uuid=%s' % self.sport_option_1.uuid)
         self.assertEqual(
             resp.json_body, [self.question_3_response_1.to_dict()])
 
-        resp = self.app.get('/responses/%s' % self.sport_option_4.uuid)
+        resp = self.app.get(
+            '/responses?option_uuid=%s' % self.sport_option_4.uuid)
         self.assertEqual(
             resp.json_body, [self.question_3_response_2.to_dict()])
 
+    def test_invalid_get_responses(self):
+        resp = self.app.get('/responses', status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            'question_uuid or option_uuid required')
+
+        data = {
+            'option_uuid': uuid.uuid4().hex,
+            'question_uuid': uuid.uuid4().hex}
+        resp = self.app.get('/responses', params=data, status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            'Only 1 uuid is required.')
+
     def test_create(self):
-        data = {'text': 'foobar'}
+        data = {'text': 'foobar', 'option_uuid': self.question_1_option.uuid}
         resp = self.app.post_json(
-            '/responses/%s' % self.question_1_option.uuid, params=data)
+            '/responses', params=data)
         self.assertEqual(resp.json_body['text'], data['text'])
