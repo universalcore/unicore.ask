@@ -1,13 +1,13 @@
 """initial
 
-Revision ID: 5525900b25ae
+Revision ID: 1729c1e682dc
 Revises:
-Create Date: 2015-03-31 14:49:32.950846
+Create Date: 2015-03-31 16:41:02.455828
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '5525900b25ae'
+revision = '1729c1e682dc'
 down_revision = None
 branch_labels = None
 depends_on = None
