@@ -87,10 +87,25 @@ class ResponsesApiTestCase(DBTestCase):
             text='tennis')
         self.db.flush()
 
+        self.question_5 = self.create_question(
+            self.db, title='How old are you', short_name='age',
+            question_type='free_text', numeric=True,
+            options=[])
+        self.db.flush()
+        self.question_5_option = self.create_question_option(
+            self.db, question_id=self.question_5.uuid)
+        self.db.flush()
+
         self.db.commit()
 
     def test_response_not_found(self):
         self.app.get('/response/%s' % uuid.uuid4(), status=404)
+
+    def test_responses_not_found(self):
+        self.app.get(
+            '/responses?option_uuid=%s' % uuid.uuid4().hex, status=404)
+        self.app.get(
+            '/responses?question_uuid=%s' % uuid.uuid4().hex, status=404)
 
     def test_free_text_question_response(self):
         resp = self.app.get(
@@ -99,7 +114,7 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body, self.question_1_response.to_dict())
 
         resp = self.app.get(
-            '/responses/%s' % self.question_1.uuid)
+            '/responses?option_uuid=%s' % self.question_1_option.uuid)
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, [self.question_1_response.to_dict()])
 
@@ -110,7 +125,7 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body, self.question_2_response.to_dict())
 
         resp = self.app.get(
-            '/responses/%s' % self.question_2.uuid)
+            '/responses?option_uuid=%s' % self.age_option_3.uuid)
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, [self.question_2_response.to_dict()])
 
@@ -125,19 +140,42 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body, self.question_3_response_2.to_dict())
 
         resp = self.app.get(
-            '/responses/%s' % self.question_3.uuid)
-        self.assertEqual(resp.status_int, 200)
-        self.assertEqual(len(resp.json_body), 2)
+            '/responses?option_uuid=%s' % self.sport_option_1.uuid)
+        self.assertEqual(
+            resp.json_body, [self.question_3_response_1.to_dict()])
 
-    def test_edit(self):
-        resp = self.app.put_json(
-            '/response/%s' % uuid.uuid4().hex,
-            params={'text': 'foo2'})
-        self.assertEqual(resp.status_int, 200)
-        self.assertEqual(resp.json_body, {})
+        resp = self.app.get(
+            '/responses?option_uuid=%s' % self.sport_option_4.uuid)
+        self.assertEqual(
+            resp.json_body, [self.question_3_response_2.to_dict()])
+
+    def test_invalid_get_responses(self):
+        resp = self.app.get('/responses', status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            'question_uuid or option_uuid required')
+
+        data = {
+            'option_uuid': uuid.uuid4().hex,
+            'question_uuid': uuid.uuid4().hex}
+        resp = self.app.get('/responses', params=data, status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            'Only 1 uuid is required.')
 
     def test_create(self):
-        data = {'text': 'foobar'}
+        data = {'text': 'foobar', 'option_uuid': self.question_1_option.uuid}
         resp = self.app.post_json(
-            '/responses/%s' % uuid.uuid4().hex, params=data)
-        self.assertEqual(resp.json_body, {})
+            '/responses', params=data)
+        self.assertEqual(resp.json_body['text'], data['text'])
+
+        resp = self.app.get(
+            '/questions/%s' % self.question_1.uuid)
+        self.assertEqual(resp.json_body['options'][0]['responses_count'], 1)
+
+    def test_numeric_free_text_question(self):
+        data = {'text': 'foobar', 'option_uuid': self.question_5_option.uuid}
+        resp = self.app.post_json('/responses', params=data, status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            'Numeric response is required.')

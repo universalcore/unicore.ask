@@ -1,7 +1,11 @@
 from cornice.resource import resource, view
 from pyramid.exceptions import NotFound
 
-from unicore.ask.service.models import QuestionResponse, Question
+from unicore.ask.service.models import (
+    Question, QuestionResponse, QuestionOption)
+from unicore.ask.service.schema import (
+    QuestionResponseSchema, QuestionResponseGetSchema)
+from unicore.ask.service.validators import response_get_uuid_validator
 
 
 def get_response_object(request):
@@ -15,29 +19,75 @@ def get_response_object(request):
 
 
 def get_responses(request):
-    question_uuid = request.matchdict['question_uuid']
+    question_uuid = request.validated.get('question_uuid')
+    option_uuid = request.validated.get('option_uuid')
 
-    question = request.db.query(Question).get(question_uuid)
+    if question_uuid:
+        question = request.db.query(Question).get(question_uuid)
 
-    if question is None:
+        if not question:
+            raise NotFound
+
+        return question.responses
+
+    if option_uuid:
+        option = request.db.query(QuestionOption).get(option_uuid)
+
+        if not option:
+            raise NotFound
+
+        return option.responses
+
+
+def get_option_object(request):
+    uuid = request.validated['option_uuid']
+    option = request.db.query(QuestionOption).get(uuid)
+
+    if option is None:
         raise NotFound
 
-    return question.responses.order_by('question_id')
+    return option
 
 
 @resource(
-    collection_path='/responses/{question_uuid}',
+    collection_path='/responses',
     path='/response/{uuid}')
 class QuestionResponseResource(object):
 
     def __init__(self, request):
         self.request = request
 
-    @view(renderer='json')
+    @view(renderer='json', schema=QuestionResponseSchema)
     def collection_post(self):
-        return {}
+        def is_numeric_response(option, response):
+            if (option.question.question_type == 'free_text' and
+                    option.question.numeric):
+                try:
+                    int(response)
+                except ValueError:
+                    return False
+            return True
+        option = get_option_object(self.request)
 
-    @view(renderer='json')
+        if not is_numeric_response(option, self.request.validated['text']):
+            self.request.errors.add(
+                'text', 'numeric', 'Numeric response is required.')
+            self.request.status = 400
+            return
+
+        response = QuestionResponse()
+        for attr, value in self.request.validated.iteritems():
+            setattr(response, attr, value)
+        response.question_id = option.question_id
+        option.responses.append(response)
+        option.responses_count = QuestionOption.responses_count + 1
+        self.request.db.flush()
+        return response.to_dict()
+
+    @view(
+        renderer='json',
+        schema=QuestionResponseGetSchema,
+        validators=response_get_uuid_validator)
     def collection_get(self):
         responses = get_responses(self.request)
         return [response.to_dict() for response in responses]
@@ -46,7 +96,3 @@ class QuestionResponseResource(object):
     def get(self):
         response = get_response_object(self.request)
         return response.to_dict()
-
-    @view(renderer='json')
-    def put(self):
-        return {}

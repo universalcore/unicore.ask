@@ -6,7 +6,7 @@ from unicore.ask.service import validators
 class QuestionOptionSchema(colander.MappingSchema):
     uuid = colander.SchemaNode(
         colander.String(),
-        validator=validators.option_uuid_validator, missing=None)
+        validator=validators.uuid_validator, missing=None)
     title = colander.SchemaNode(
         colander.String(),
         validator=validators.option_title_validator)
@@ -33,3 +33,24 @@ class QuestionSchema(colander.MappingSchema):
         validator=validators.question_type_validator)
     multiple = colander.SchemaNode(colander.Boolean(), default=False)
     options = Options(validator=validators.options_validator, default=[])
+
+
+class QuestionResponseSchema(colander.MappingSchema):
+    option_uuid = colander.SchemaNode(
+        colander.String(),
+        validator=validators.uuid_validator)
+    text = colander.SchemaNode(
+        colander.String())
+
+
+class QuestionResponseGetSchema(colander.MappingSchema):
+    question_uuid = colander.SchemaNode(
+        colander.String(),
+        location="querystring",
+        validator=validators.uuid_validator,
+        missing=None)
+    option_uuid = colander.SchemaNode(
+        colander.String(),
+        location="querystring",
+        validator=validators.uuid_validator,
+        missing=None)

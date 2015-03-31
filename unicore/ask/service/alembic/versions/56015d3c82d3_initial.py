@@ -1,13 +1,13 @@
 """initial
 
-Revision ID: 1433e55848a8
+Revision ID: 56015d3c82d3
 Revises:
-Create Date: 2015-03-19 19:10:20.110239
+Create Date: 2015-03-31 12:30:54.970202
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '1433e55848a8'
+revision = '56015d3c82d3'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -39,7 +39,7 @@ def upgrade():
     )
     op.create_table('question_responses',
     sa.Column('uuid', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
-    sa.Column('text', sa.Unicode(length=255), nullable=False),
+    sa.Column('text', sa.Unicode(), nullable=False),
     sa.Column('question_id', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
     sa.Column('question_option_id', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
     sa.ForeignKeyConstraint(['question_id'], ['questions.uuid'], ),
