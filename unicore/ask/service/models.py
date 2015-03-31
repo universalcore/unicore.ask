@@ -35,9 +35,9 @@ class QuestionResponse(Base, UUIDMixin):
     question_option_id = Column(
         UUIDType(binary=False), ForeignKey('question_options.uuid'),
         nullable=False)
-    created_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime(), server_default=func.now())
     updated_at = Column(
-        DateTime, default=func.now(), onupdate=func.now())
+        DateTime(), server_default=func.now(), onupdate=func.now())
 
     app_uuid = Column(UUIDType(binary=False), nullable=False)
     user_uuid = Column(UUIDType(binary=False), nullable=False)
@@ -69,9 +69,9 @@ class QuestionOption(Base, UUIDMixin):
     responses = relationship(
         QuestionResponse, backref='question_options', lazy="dynamic")
     question = relationship("Question", backref="questions")
-    created_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(
-        DateTime, default=func.now(), onupdate=func.now())
+        DateTime, server_default=func.now(), onupdate=func.now())
 
     def to_dict(self):
         return {
@@ -111,9 +111,9 @@ class Question(Base, UUIDMixin):
     responses = relationship(
         QuestionResponse, backref='questions', lazy="dynamic")
 
-    created_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(
-        DateTime, default=func.now(), onupdate=func.now())
+        DateTime, server_default=func.now(), onupdate=func.now())
 
     author_uuid = Column(UUIDType(binary=False), nullable=False)
     app_uuid = Column(UUIDType(binary=False), nullable=False)

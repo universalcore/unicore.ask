@@ -1,13 +1,13 @@
 """initial
 
-Revision ID: 1729c1e682dc
+Revision ID: 22b6e311f25b
 Revises:
-Create Date: 2015-03-31 16:41:02.455828
+Create Date: 2015-03-31 16:53:27.230903
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '1729c1e682dc'
+revision = '22b6e311f25b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,8 +28,8 @@ def upgrade():
     sa.Column('question_type', sa.Unicode(length=255), nullable=False),
     sa.Column('content_type', sa.Unicode(length=255), nullable=False),
     sa.Column('locale', sa.Unicode(length=6), nullable=False),
-    sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text(u'now()'), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text(u'now()'), nullable=True),
     sa.Column('author_uuid', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
     sa.Column('app_uuid', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
     sa.Column('content_uuid', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
@@ -41,8 +41,8 @@ def upgrade():
     sa.Column('short_name', sa.Unicode(length=255), nullable=True),
     sa.Column('responses_count', sa.Integer(), nullable=True),
     sa.Column('question_id', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
-    sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text(u'now()'), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text(u'now()'), nullable=True),
     sa.ForeignKeyConstraint(['question_id'], ['questions.uuid'], ),
     sa.PrimaryKeyConstraint('uuid')
     )
@@ -51,8 +51,8 @@ def upgrade():
     sa.Column('text', sa.Unicode(), nullable=False),
     sa.Column('question_id', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
     sa.Column('question_option_id', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
-    sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text(u'now()'), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text(u'now()'), nullable=True),
     sa.Column('app_uuid', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
     sa.Column('user_uuid', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
     sa.ForeignKeyConstraint(['question_id'], ['questions.uuid'], ),
