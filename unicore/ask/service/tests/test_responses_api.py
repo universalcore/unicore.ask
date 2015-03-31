@@ -114,6 +114,12 @@ class ResponsesApiTestCase(DBTestCase):
     def test_response_not_found(self):
         self.app.get('/response/%s' % uuid.uuid4(), status=404)
 
+    def test_responses_not_found(self):
+        self.app.get(
+            '/responses?option_uuid=%s' % uuid.uuid4().hex, status=404)
+        self.app.get(
+            '/responses?question_uuid=%s' % uuid.uuid4().hex, status=404)
+
     def test_free_text_question_response(self):
         resp = self.app.get(
             '/response/%s' % self.question_1_response.uuid)
