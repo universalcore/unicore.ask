@@ -1,3 +1,4 @@
+from uuid import UUID
 from cornice.resource import resource, view
 from pyramid.exceptions import NotFound
 
@@ -79,6 +80,8 @@ class QuestionResponseResource(object):
         for attr, value in self.request.validated.iteritems():
             setattr(response, attr, value)
         response.question_id = option.question_id
+        response.app_uuid = UUID(hex=self.request.validated['app_uuid'])
+        response.user_uuid = UUID(hex=self.request.validated['user_uuid'])
         option.responses.append(response)
         option.responses_count = QuestionOption.responses_count + 1
         self.request.db.flush()

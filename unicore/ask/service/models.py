@@ -1,6 +1,7 @@
 from uuid import uuid4, UUID
 
-from sqlalchemy import Column, Unicode, Boolean, ForeignKey, Integer
+from sqlalchemy import (
+    Column, Unicode, Boolean, ForeignKey, Integer, DateTime, func)
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
 
@@ -34,13 +35,22 @@ class QuestionResponse(Base, UUIDMixin):
     question_option_id = Column(
         UUIDType(binary=False), ForeignKey('question_options.uuid'),
         nullable=False)
+    created_at = Column(DateTime(), server_default=func.now())
+    updated_at = Column(
+        DateTime(), server_default=func.now(), onupdate=func.now())
+
+    app_uuid = Column(UUIDType(binary=False), nullable=False)
+    user_uuid = Column(UUIDType(binary=False), nullable=False)
 
     def to_dict(self):
         return {
             'uuid': self.uuid,
+            'app_uuid': self.app_uuid.hex,
+            'user_uuid': self.user_uuid.hex,
             'question_uuid': self.question_id.hex,
             'question_option_uuid': self.question_option_id.hex,
             'text': self.text,
+            'created_at': self.created_at.isoformat(),
         }
 
 
@@ -59,6 +69,9 @@ class QuestionOption(Base, UUIDMixin):
     responses = relationship(
         QuestionResponse, backref='question_options', lazy="dynamic")
     question = relationship("Question", backref="questions")
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(
+        DateTime, server_default=func.now(), onupdate=func.now())
 
     def to_dict(self):
         return {
@@ -66,6 +79,8 @@ class QuestionOption(Base, UUIDMixin):
             'title': self.title,
             'short_name': self.short_name,
             'responses_count': self.responses_count,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
         }
 
 
@@ -77,6 +92,11 @@ class Question(Base, UUIDMixin):
         'free_text',
         'multiple_choice',
     )
+    content_types = (
+        'page',
+        'category',
+        'localisation',
+    )
     title_length = 255
     short_name_length = 255
 
@@ -85,17 +105,33 @@ class Question(Base, UUIDMixin):
     multiple = Column(Boolean(255), default=True)
     numeric = Column(Boolean(255), default=False)
     question_type = Column(Unicode(255), nullable=False)
+    content_type = Column(Unicode(255), nullable=False)
+    locale = Column(Unicode(6), nullable=False)
     options = relationship(QuestionOption, backref='questions', lazy="dynamic")
     responses = relationship(
         QuestionResponse, backref='questions', lazy="dynamic")
 
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(
+        DateTime, server_default=func.now(), onupdate=func.now())
+
+    author_uuid = Column(UUIDType(binary=False), nullable=False)
+    app_uuid = Column(UUIDType(binary=False), nullable=False)
+    content_uuid = Column(UUIDType(binary=False), nullable=False)
+
     def to_dict(self):
         return {
             'uuid': self.uuid,
+            'author_uuid': self.author_uuid.hex,
+            'app_uuid': self.app_uuid.hex,
+            'content_uuid': self.content_uuid.hex,
             'title': self.title,
             'short_name': self.short_name,
             'multiple': self.multiple,
             'numeric': self.numeric,
             'question_type': self.question_type,
-            'options': [option.to_dict() for option in self.options]
+            'locale': self.locale,
+            'options': [option.to_dict() for option in self.options],
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
         }

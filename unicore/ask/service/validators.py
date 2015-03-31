@@ -1,4 +1,5 @@
 import colander
+import re
 
 from unicore.ask.service.models import Question, QuestionOption
 
@@ -7,6 +8,7 @@ question_title_validator = colander.All(
 question_short_name_validator = colander.All(
     colander.Length(max=Question.short_name_length))
 question_type_validator = colander.OneOf(Question.question_types)
+question_content_type_validator = colander.OneOf(Question.content_types)
 
 option_title_validator = colander.All(
     colander.Length(max=QuestionOption.title_length))
@@ -15,6 +17,14 @@ option_short_name_validator = colander.All(
 
 uuid_validator = colander.All(
     colander.Length(max=32, min=32))
+
+LOCALE_CODE_RE = re.compile(r'^[a-z]{3}_[A-Z]{2}$')
+
+
+def locale_validator(node, value):
+    if not LOCALE_CODE_RE.match(value):
+        raise colander.Invalid(
+            node, '%s is not a valid locale' % (value, ))
 
 
 @colander.deferred
