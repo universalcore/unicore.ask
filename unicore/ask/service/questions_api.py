@@ -1,3 +1,4 @@
+from uuid import UUID
 from cornice.resource import resource, view
 from pyramid.exceptions import NotFound
 
@@ -38,6 +39,10 @@ class QuestionResource(object):
         for attr, value in self.request.validated.iteritems():
             if not attr == 'options':
                 setattr(question, attr, value)
+        question.author_uuid = UUID(hex=self.request.validated['author_uuid'])
+        question.app_uuid = UUID(hex=self.request.validated['app_uuid'])
+        question.content_uuid = UUID(
+            hex=self.request.validated['content_uuid'])
         self.request.db.flush()
 
         # Automatically create an option for Free Text question
@@ -75,6 +80,10 @@ class QuestionResource(object):
         for attr, value in self.request.validated.iteritems():
             if value is not None and not attr == 'options':
                 setattr(question, attr, value)
+        question.author_uuid = UUID(hex=self.request.validated['author_uuid'])
+        question.app_uuid = UUID(hex=self.request.validated['app_uuid'])
+        question.content_uuid = UUID(
+            hex=self.request.validated['content_uuid'])
 
         validated_options = self.request.validated.get('options', [])
 

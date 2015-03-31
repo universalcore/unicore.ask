@@ -39,9 +39,14 @@ class QuestionResponse(Base, UUIDMixin):
     updated_at = Column(
         DateTime, default=datetime.utcnow(), onupdate=datetime.utcnow())
 
+    app_uuid = Column(UUIDType(binary=False), nullable=False)
+    user_uuid = Column(UUIDType(binary=False), nullable=False)
+
     def to_dict(self):
         return {
             'uuid': self.uuid,
+            'app_uuid': self.app_uuid.hex,
+            'user_uuid': self.user_uuid.hex,
             'question_uuid': self.question_id.hex,
             'question_option_uuid': self.question_option_id.hex,
             'text': self.text,
@@ -103,9 +108,16 @@ class Question(Base, UUIDMixin):
     updated_at = Column(
         DateTime, default=datetime.utcnow(), onupdate=datetime.utcnow())
 
+    author_uuid = Column(UUIDType(binary=False), nullable=False)
+    app_uuid = Column(UUIDType(binary=False), nullable=False)
+    content_uuid = Column(UUIDType(binary=False), nullable=False)
+
     def to_dict(self):
         return {
             'uuid': self.uuid,
+            'author_uuid': self.author_uuid.hex,
+            'app_uuid': self.app_uuid.hex,
+            'content_uuid': self.content_uuid.hex,
             'title': self.title,
             'short_name': self.short_name,
             'multiple': self.multiple,

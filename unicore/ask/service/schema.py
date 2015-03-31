@@ -21,6 +21,15 @@ class Options(colander.SequenceSchema):
 
 
 class QuestionSchema(colander.MappingSchema):
+    app_uuid = colander.SchemaNode(
+        colander.String(),
+        validator=validators.uuid_validator)
+    author_uuid = colander.SchemaNode(
+        colander.String(),
+        validator=validators.uuid_validator)
+    content_uuid = colander.SchemaNode(
+        colander.String(),
+        validator=validators.uuid_validator)
     title = colander.SchemaNode(
         colander.String(),
         validator=validators.question_title_validator)
@@ -37,6 +46,12 @@ class QuestionSchema(colander.MappingSchema):
 
 class QuestionResponseSchema(colander.MappingSchema):
     option_uuid = colander.SchemaNode(
+        colander.String(),
+        validator=validators.uuid_validator)
+    app_uuid = colander.SchemaNode(
+        colander.String(),
+        validator=validators.uuid_validator)
+    user_uuid = colander.SchemaNode(
         colander.String(),
         validator=validators.uuid_validator)
     text = colander.SchemaNode(
