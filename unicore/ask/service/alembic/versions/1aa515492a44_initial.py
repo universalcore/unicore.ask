@@ -1,13 +1,13 @@
 """initial
 
-Revision ID: 56015d3c82d3
+Revision ID: 1aa515492a44
 Revises:
-Create Date: 2015-03-31 12:30:54.970202
+Create Date: 2015-03-31 13:19:10.790169
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '56015d3c82d3'
+revision = '1aa515492a44'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -26,6 +26,8 @@ def upgrade():
     sa.Column('multiple', sa.Boolean(create_constraint=255), nullable=True),
     sa.Column('numeric', sa.Boolean(create_constraint=255), nullable=True),
     sa.Column('question_type', sa.Unicode(length=255), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('uuid')
     )
     op.create_table('question_options',
@@ -34,6 +36,8 @@ def upgrade():
     sa.Column('short_name', sa.Unicode(length=255), nullable=True),
     sa.Column('responses_count', sa.Integer(), nullable=True),
     sa.Column('question_id', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['question_id'], ['questions.uuid'], ),
     sa.PrimaryKeyConstraint('uuid')
     )
@@ -42,6 +46,8 @@ def upgrade():
     sa.Column('text', sa.Unicode(), nullable=False),
     sa.Column('question_id', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
     sa.Column('question_option_id', sqlalchemy_utils.types.uuid.UUIDType(binary=False), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['question_id'], ['questions.uuid'], ),
     sa.ForeignKeyConstraint(['question_option_id'], ['question_options.uuid'], ),
     sa.PrimaryKeyConstraint('uuid')

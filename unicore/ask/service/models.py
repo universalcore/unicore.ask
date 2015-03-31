@@ -1,6 +1,7 @@
+from datetime import datetime
 from uuid import uuid4, UUID
 
-from sqlalchemy import Column, Unicode, Boolean, ForeignKey, Integer
+from sqlalchemy import Column, Unicode, Boolean, ForeignKey, Integer, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
 
@@ -34,6 +35,9 @@ class QuestionResponse(Base, UUIDMixin):
     question_option_id = Column(
         UUIDType(binary=False), ForeignKey('question_options.uuid'),
         nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(
+        DateTime, default=datetime.utcnow(), onupdate=datetime.utcnow())
 
     def to_dict(self):
         return {
@@ -41,6 +45,7 @@ class QuestionResponse(Base, UUIDMixin):
             'question_uuid': self.question_id.hex,
             'question_option_uuid': self.question_option_id.hex,
             'text': self.text,
+            'created_at': self.created_at.isoformat(),
         }
 
 
@@ -59,6 +64,9 @@ class QuestionOption(Base, UUIDMixin):
     responses = relationship(
         QuestionResponse, backref='question_options', lazy="dynamic")
     question = relationship("Question", backref="questions")
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(
+        DateTime, default=datetime.utcnow(), onupdate=datetime.utcnow())
 
     def to_dict(self):
         return {
@@ -66,6 +74,8 @@ class QuestionOption(Base, UUIDMixin):
             'title': self.title,
             'short_name': self.short_name,
             'responses_count': self.responses_count,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
         }
 
 
@@ -89,6 +99,10 @@ class Question(Base, UUIDMixin):
     responses = relationship(
         QuestionResponse, backref='questions', lazy="dynamic")
 
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(
+        DateTime, default=datetime.utcnow(), onupdate=datetime.utcnow())
+
     def to_dict(self):
         return {
             'uuid': self.uuid,
@@ -97,5 +111,7 @@ class Question(Base, UUIDMixin):
             'multiple': self.multiple,
             'numeric': self.numeric,
             'question_type': self.question_type,
-            'options': [option.to_dict() for option in self.options]
+            'options': [option.to_dict() for option in self.options],
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
         }
