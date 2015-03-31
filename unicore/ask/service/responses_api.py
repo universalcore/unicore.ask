@@ -51,7 +51,21 @@ class QuestionResponseResource(object):
 
     @view(renderer='json', schema=QuestionResponseSchema)
     def collection_post(self):
+        def is_numeric_response(option, response):
+            if (option.question.question_type == 'free_text' and
+                    option.question.numeric):
+                try:
+                    int(response)
+                except ValueError:
+                    return False
+            return True
         option = get_option_object(self.request)
+
+        if not is_numeric_response(option, self.request.validated['text']):
+            self.request.errors.add(
+                'text', 'numeric', 'Numeric response is required.')
+            self.request.status = 400
+            return
 
         response = QuestionResponse()
         for attr, value in self.request.validated.iteritems():

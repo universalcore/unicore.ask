@@ -58,6 +58,7 @@ class QuestionOption(Base, UUIDMixin):
         UUIDType(binary=False), ForeignKey('questions.uuid'), nullable=False)
     responses = relationship(
         QuestionResponse, backref='question_options', lazy="dynamic")
+    question = relationship("Question", backref="questions")
 
     def to_dict(self):
         return {

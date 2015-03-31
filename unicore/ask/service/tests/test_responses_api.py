@@ -87,6 +87,15 @@ class ResponsesApiTestCase(DBTestCase):
             text='tennis')
         self.db.flush()
 
+        self.question_5 = self.create_question(
+            self.db, title='How old are you', short_name='age',
+            question_type='free_text', numeric=True,
+            options=[])
+        self.db.flush()
+        self.question_5_option = self.create_question_option(
+            self.db, question_id=self.question_5.uuid)
+        self.db.flush()
+
         self.db.commit()
 
     def test_response_not_found(self):
@@ -157,3 +166,10 @@ class ResponsesApiTestCase(DBTestCase):
         resp = self.app.get(
             '/questions/%s' % self.question_1.uuid)
         self.assertEqual(resp.json_body['options'][0]['responses_count'], 1)
+
+    def test_numeric_free_text_question(self):
+        data = {'text': 'foobar', 'option_uuid': self.question_5_option.uuid}
+        resp = self.app.post_json('/responses', params=data, status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            'Numeric response is required.')
