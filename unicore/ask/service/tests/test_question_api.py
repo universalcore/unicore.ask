@@ -5,6 +5,7 @@ from unicore.ask.service.models import QuestionOption, Question
 
 
 class QuestionApiTestCase(DBTestCase):
+
     def create_question_option(self, session=None, **attrs):
         return self.create_model_object(QuestionOption, session, **attrs)
 
@@ -17,7 +18,8 @@ class QuestionApiTestCase(DBTestCase):
             self.db, title='What is your name', short_name='name',
             question_type='free_text', author_uuid=uuid.uuid4(),
             app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
-            content_type='page', options=[])
+            content_type='page', options=[],
+            locale='eng_GB')
         self.db.flush()
         self.question_1_option = self.create_question_option(
             self.db, question_id=self.question_1.uuid)
@@ -26,7 +28,8 @@ class QuestionApiTestCase(DBTestCase):
             self.db, title='What is your age', short_name='age',
             question_type='multiple_choice', author_uuid=uuid.uuid4(),
             app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
-            content_type='page', options=[])
+            content_type='page', options=[],
+            locale='eng_GB')
         self.db.flush()
 
         self.age_less_than_18 = self.create_question_option(
@@ -43,7 +46,8 @@ class QuestionApiTestCase(DBTestCase):
             multiple=True, question_type='multiple_choice',
             author_uuid=uuid.uuid4(), app_uuid=uuid.uuid4(),
             content_uuid=uuid.uuid4(),
-            content_type='page', options=[])
+            content_type='page', options=[],
+            locale='eng_GB')
         self.db.flush()
 
         self.create_question_option(
@@ -62,7 +66,8 @@ class QuestionApiTestCase(DBTestCase):
             multiple=True, question_type='multiple_choice',
             author_uuid=uuid.uuid4(), app_uuid=uuid.uuid4(),
             content_uuid=uuid.uuid4(),
-            content_type='page', options=[])
+            content_type='page', options=[],
+            locale='eng_GB')
         self.db.flush()
 
         self.country_usa = self.create_question_option(
@@ -81,7 +86,8 @@ class QuestionApiTestCase(DBTestCase):
             self.db, title='How old are you', short_name='age',
             question_type='free_text', numeric=True, author_uuid=uuid.uuid4(),
             app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
-            content_type='page', options=[])
+            content_type='page', options=[],
+            locale='eng_GB')
         self.db.flush()
         self.question_5_option = self.create_question_option(
             self.db, question_id=self.question_5.uuid)
@@ -125,6 +131,7 @@ class QuestionApiTestCase(DBTestCase):
                 'title': 'What is your name?',
                 'question_type': 'free_text',
                 'content_type': 'page',
+                'locale': 'eng_GB',
                 'app_uuid': uuid.uuid4().hex,
                 'author_uuid': uuid.uuid4().hex,
                 'content_uuid': uuid.uuid4().hex,
@@ -136,12 +143,29 @@ class QuestionApiTestCase(DBTestCase):
         resp = self.app.get('/questions/%s' % self.question_1.uuid)
         self.assertEqual(resp.json_body['title'], 'What is your name?')
 
+    def test_invalid_locale_code(self):
+        resp = self.app.put_json(
+            '/questions/%s' % self.question_1.uuid,
+            params={
+                'title': 'What is your name?',
+                'question_type': 'free_text',
+                'content_type': 'page',
+                'locale': 'unknown',
+                'app_uuid': uuid.uuid4().hex,
+                'author_uuid': uuid.uuid4().hex,
+                'content_uuid': uuid.uuid4().hex,
+            }, status=400)
+        self.assertEqual(
+            resp.json_body['errors'][0]['description'],
+            "unknown is not a valid locale")
+
     def test_edit_multiple_choice_existing_options(self):
         data = {
             'title': 'What is your age sir?',
             'short_name': 'age',
             'question_type': 'multiple_choice',
             'content_type': 'page',
+            'locale': 'eng_GB',
             'multiple': False,
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
@@ -187,6 +211,7 @@ class QuestionApiTestCase(DBTestCase):
             'short_name': 'age',
             'question_type': 'multiple_choice',
             'content_type': 'page',
+            'locale': 'eng_GB',
             'multiple': False,
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
@@ -236,6 +261,7 @@ class QuestionApiTestCase(DBTestCase):
             'short_name': 'age',
             'question_type': 'multiple_choice',
             'content_type': 'page',
+            'locale': 'eng_GB',
             'multiple': False,
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
@@ -258,6 +284,7 @@ class QuestionApiTestCase(DBTestCase):
             'short_name': 'age',
             'question_type': 'multiple_choice',
             'content_type': 'page',
+            'locale': 'eng_GB',
             'multiple': False,
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
@@ -281,10 +308,11 @@ class QuestionApiTestCase(DBTestCase):
             'short_name': 'name',
             'question_type': 'free_text',
             'content_type': 'page',
+            'locale': 'eng_GB',
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
-            }
+        }
         resp = self.app.post_json(
             '/questions', params=data)
         self.assertEqual(resp.status_int, 201)
@@ -336,7 +364,7 @@ class QuestionApiTestCase(DBTestCase):
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
-            }
+        }
         resp = self.app.post_json(
             '/questions', params=data, status=400)
         self.assertEqual(
@@ -350,10 +378,11 @@ class QuestionApiTestCase(DBTestCase):
             'short_name': 'name',
             'question_type': 'multiple_choice',
             'content_type': 'page',
+            'locale': 'eng_GB',
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
-            }
+        }
         resp = self.app.post_json(
             '/questions', params=data, status=400)
         self.assertEqual(
@@ -366,11 +395,12 @@ class QuestionApiTestCase(DBTestCase):
             'short_name': 'age',
             'question_type': 'multiple_choice',
             'content_type': 'page',
+            'locale': 'eng_GB',
             'options': [{'title': 'very old'}],
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
-            }
+        }
         resp = self.app.post_json(
             '/questions', params=data, status=400)
         self.assertEqual(
@@ -383,6 +413,7 @@ class QuestionApiTestCase(DBTestCase):
             'short_name': 'age',
             'question_type': 'multiple_choice',
             'content_type': 'page',
+            'locale': 'eng_GB',
             'multiple': True,
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,
@@ -425,6 +456,7 @@ class QuestionApiTestCase(DBTestCase):
             'short_name': 'country',
             'question_type': 'multiple_choice',
             'content_type': 'page',
+            'locale': 'eng_GB',
             'multiple': True,
             'app_uuid': uuid.uuid4().hex,
             'author_uuid': uuid.uuid4().hex,

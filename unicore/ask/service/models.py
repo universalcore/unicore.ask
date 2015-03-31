@@ -106,6 +106,7 @@ class Question(Base, UUIDMixin):
     numeric = Column(Boolean(255), default=False)
     question_type = Column(Unicode(255), nullable=False)
     content_type = Column(Unicode(255), nullable=False)
+    locale = Column(Unicode(6), nullable=False)
     options = relationship(QuestionOption, backref='questions', lazy="dynamic")
     responses = relationship(
         QuestionResponse, backref='questions', lazy="dynamic")
@@ -129,6 +130,7 @@ class Question(Base, UUIDMixin):
             'multiple': self.multiple,
             'numeric': self.numeric,
             'question_type': self.question_type,
+            'locale': self.locale,
             'options': [option.to_dict() for option in self.options],
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
