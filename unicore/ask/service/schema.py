@@ -31,6 +31,13 @@ class QuestionsGetSchema(colander.MappingSchema):
         location='querystring')
 
 
+class QuestionGetSchema(colander.MappingSchema):
+    app_uuid = colander.SchemaNode(
+        colander.String(),
+        validator=validators.uuid_validator,
+        location='querystring')
+
+
 class QuestionSchema(colander.MappingSchema):
     app_uuid = colander.SchemaNode(
         colander.String(),
@@ -79,10 +86,12 @@ class QuestionResponseGetSchema(colander.MappingSchema):
     question_uuid = colander.SchemaNode(
         colander.String(),
         location="querystring",
+        type="str",
         validator=validators.uuid_validator,
         missing=None)
     option_uuid = colander.SchemaNode(
         colander.String(),
         location="querystring",
+        type="str",
         validator=validators.uuid_validator,
         missing=None)
