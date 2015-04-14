@@ -494,3 +494,11 @@ class QuestionApiTestCase(DBTestCase):
         resp = self.app.get(
             '/questions/%s' % self.question_5.uuid)
         self.assertEqual(resp.json_body, self.question_5.to_dict())
+
+    def test_get_question_for_content(self):
+        data = {
+            'app_uuid': self.question_2.app_uuid.hex,
+            'content_uuid': self.question_2.content_uuid.hex,
+        }
+        resp = self.app.get('/questions', params=data)
+        self.assertEqual(resp.json_body, [self.question_2.to_dict()])

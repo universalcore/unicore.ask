@@ -20,6 +20,17 @@ class Options(colander.SequenceSchema):
     option = QuestionOptionSchema()
 
 
+class QuestionsGetSchema(colander.MappingSchema):
+    app_uuid = colander.SchemaNode(
+        colander.String(),
+        validator=validators.uuid_validator,
+        location='querystring')
+    content_uuid = colander.SchemaNode(
+        colander.String(),
+        validator=validators.uuid_validator,
+        location='querystring')
+
+
 class QuestionSchema(colander.MappingSchema):
     app_uuid = colander.SchemaNode(
         colander.String(),
