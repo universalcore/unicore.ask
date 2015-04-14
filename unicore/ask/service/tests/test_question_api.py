@@ -14,10 +14,12 @@ class QuestionApiTestCase(DBTestCase):
 
     def setUp(self):
         super(QuestionApiTestCase, self).setUp()
+        self.app_uuid = uuid.uuid4().hex
+
         self.question_1 = self.create_question(
             self.db, title='What is your name', short_name='name',
             question_type='free_text', author_uuid=uuid.uuid4(),
-            app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
+            app_uuid=self.app_uuid, content_uuid=uuid.uuid4(),
             content_type='page', options=[],
             locale='eng_GB')
         self.db.flush()
@@ -27,7 +29,7 @@ class QuestionApiTestCase(DBTestCase):
         self.question_2 = self.create_question(
             self.db, title='What is your age', short_name='age',
             question_type='multiple_choice', author_uuid=uuid.uuid4(),
-            app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
+            app_uuid=self.app_uuid, content_uuid=uuid.uuid4(),
             content_type='page', options=[],
             locale='eng_GB')
         self.db.flush()
@@ -44,7 +46,7 @@ class QuestionApiTestCase(DBTestCase):
         self.question_3 = self.create_question(
             self.db, title='Which sports do you watch', short_name='sports',
             multiple=True, question_type='multiple_choice',
-            author_uuid=uuid.uuid4(), app_uuid=uuid.uuid4(),
+            author_uuid=uuid.uuid4(), app_uuid=self.app_uuid,
             content_uuid=uuid.uuid4(),
             content_type='page', options=[],
             locale='eng_GB')
@@ -64,7 +66,7 @@ class QuestionApiTestCase(DBTestCase):
         self.question_4 = self.create_question(
             self.db, title='Which country is the best', short_name='country',
             multiple=True, question_type='multiple_choice',
-            author_uuid=uuid.uuid4(), app_uuid=uuid.uuid4(),
+            author_uuid=uuid.uuid4(), app_uuid=self.app_uuid,
             content_uuid=uuid.uuid4(),
             content_type='page', options=[],
             locale='eng_GB')
@@ -85,7 +87,7 @@ class QuestionApiTestCase(DBTestCase):
         self.question_5 = self.create_question(
             self.db, title='How old are you', short_name='age',
             question_type='free_text', numeric=True, author_uuid=uuid.uuid4(),
-            app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
+            app_uuid=self.app_uuid, content_uuid=uuid.uuid4(),
             content_type='page', options=[],
             locale='eng_GB')
         self.db.flush()
@@ -104,23 +106,29 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(the_uuid, self.question_1._uuid)
 
     def test_question_not_found(self):
-        self.app.get('/questions/%s' % uuid.uuid4(), status=404)
+        self.app.get(
+            '/questions/%s' % uuid.uuid4(),
+            params={'app_uuid': self.app_uuid},
+            status=404)
 
     def test_free_text_question(self):
         resp = self.app.get(
-            '/questions/%s' % self.question_1.uuid)
+            '/questions/%s' % self.question_1.uuid,
+            params={'app_uuid': self.app_uuid})
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, self.question_1.to_dict())
 
     def test_multiple_choice_question(self):
         resp = self.app.get(
-            '/questions/%s' % self.question_2.uuid)
+            '/questions/%s' % self.question_2.uuid,
+            params={'app_uuid': self.app_uuid})
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, self.question_2.to_dict())
 
     def test_multiple_choice_question_with_multiple_response(self):
         resp = self.app.get(
-            '/questions/%s' % self.question_3.uuid)
+            '/questions/%s' % self.question_3.uuid,
+            params={'app_uuid': self.app_uuid})
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(resp.json_body, self.question_3.to_dict())
 
@@ -132,7 +140,7 @@ class QuestionApiTestCase(DBTestCase):
                 'question_type': 'free_text',
                 'content_type': 'page',
                 'locale': 'eng_GB',
-                'app_uuid': uuid.uuid4().hex,
+                'app_uuid': self.app_uuid,
                 'author_uuid': uuid.uuid4().hex,
                 'content_uuid': uuid.uuid4().hex,
             })
@@ -140,7 +148,9 @@ class QuestionApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body['title'], 'What is your name?')
 
         # test get also returns same data
-        resp = self.app.get('/questions/%s' % self.question_1.uuid)
+        resp = self.app.get(
+            '/questions/%s' % self.question_1.uuid,
+            params={'app_uuid': self.app_uuid})
         self.assertEqual(resp.json_body['title'], 'What is your name?')
 
     def test_invalid_locale_code(self):
@@ -151,7 +161,7 @@ class QuestionApiTestCase(DBTestCase):
                 'question_type': 'free_text',
                 'content_type': 'page',
                 'locale': 'unknown',
-                'app_uuid': uuid.uuid4().hex,
+                'app_uuid': self.app_uuid,
                 'author_uuid': uuid.uuid4().hex,
                 'content_uuid': uuid.uuid4().hex,
             }, status=400)
@@ -167,7 +177,7 @@ class QuestionApiTestCase(DBTestCase):
             'content_type': 'page',
             'locale': 'eng_GB',
             'multiple': False,
-            'app_uuid': uuid.uuid4().hex,
+            'app_uuid': self.app_uuid,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
             'options': [
@@ -192,7 +202,9 @@ class QuestionApiTestCase(DBTestCase):
             resp.json_body['options'][3]['title'], data['options'][3]['title'])
 
         # test get also returns same data
-        resp = self.app.get('/questions/%s' % self.question_2.uuid)
+        resp = self.app.get(
+            '/questions/%s' % self.question_2.uuid,
+            params={'app_uuid': self.app_uuid})
         self.assertEqual(resp.json_body['title'], data['title'])
         self.assertEqual(resp.json_body['short_name'], data['short_name'])
         self.assertEqual(resp.json_body['multiple'], data['multiple'])
@@ -213,7 +225,7 @@ class QuestionApiTestCase(DBTestCase):
             'content_type': 'page',
             'locale': 'eng_GB',
             'multiple': False,
-            'app_uuid': uuid.uuid4().hex,
+            'app_uuid': self.app_uuid,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
             'options': [
@@ -241,7 +253,9 @@ class QuestionApiTestCase(DBTestCase):
             resp.json_body['options'][5]['title'], data['options'][5]['title'])
 
         # test get also returns same data
-        resp = self.app.get('/questions/%s' % self.question_2.uuid)
+        resp = self.app.get(
+            '/questions/%s' % self.question_2.uuid,
+            params={'app_uuid': self.app_uuid})
         self.assertEqual(
             resp.json_body['options'][0]['title'], data['options'][0]['title'])
         self.assertEqual(
@@ -263,7 +277,7 @@ class QuestionApiTestCase(DBTestCase):
             'content_type': 'page',
             'locale': 'eng_GB',
             'multiple': False,
-            'app_uuid': uuid.uuid4().hex,
+            'app_uuid': self.app_uuid,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
             'options': [
@@ -286,7 +300,7 @@ class QuestionApiTestCase(DBTestCase):
             'content_type': 'page',
             'locale': 'eng_GB',
             'multiple': False,
-            'app_uuid': uuid.uuid4().hex,
+            'app_uuid': self.app_uuid,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
             'options': [
@@ -309,7 +323,7 @@ class QuestionApiTestCase(DBTestCase):
             'question_type': 'free_text',
             'content_type': 'page',
             'locale': 'eng_GB',
-            'app_uuid': uuid.uuid4().hex,
+            'app_uuid': self.app_uuid,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
         }
@@ -327,7 +341,8 @@ class QuestionApiTestCase(DBTestCase):
 
         # test get also returns same data
         resp = self.app.get(
-            '/questions/%s' % resp.json_body['uuid'])
+            '/questions/%s' % resp.json_body['uuid'],
+            params={'app_uuid': self.app_uuid})
         self.assertEqual(resp.json_body['title'], data['title'])
         self.assertEqual(resp.json_body['short_name'], data['short_name'])
         self.assertEqual(
@@ -361,7 +376,7 @@ class QuestionApiTestCase(DBTestCase):
             'short_name': 'name',
             'question_type': 'unknown',
             'content_type': 'unknown',
-            'app_uuid': uuid.uuid4().hex,
+            'app_uuid': self.app_uuid,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
         }
@@ -379,7 +394,7 @@ class QuestionApiTestCase(DBTestCase):
             'question_type': 'multiple_choice',
             'content_type': 'page',
             'locale': 'eng_GB',
-            'app_uuid': uuid.uuid4().hex,
+            'app_uuid': self.app_uuid,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
         }
@@ -397,7 +412,7 @@ class QuestionApiTestCase(DBTestCase):
             'content_type': 'page',
             'locale': 'eng_GB',
             'options': [{'title': 'very old'}],
-            'app_uuid': uuid.uuid4().hex,
+            'app_uuid': self.app_uuid,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
         }
@@ -415,7 +430,7 @@ class QuestionApiTestCase(DBTestCase):
             'content_type': 'page',
             'locale': 'eng_GB',
             'multiple': True,
-            'app_uuid': uuid.uuid4().hex,
+            'app_uuid': self.app_uuid,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
             'options': [
@@ -438,7 +453,8 @@ class QuestionApiTestCase(DBTestCase):
 
         # test get also returns same data
         resp = self.app.get(
-            '/questions/%s' % resp.json_body['uuid'])
+            '/questions/%s' % resp.json_body['uuid'],
+            params={'app_uuid': self.app_uuid})
         self.assertEqual(resp.json_body['title'], data['title'])
         self.assertEqual(resp.json_body['short_name'], data['short_name'])
         self.assertEqual(
@@ -458,7 +474,7 @@ class QuestionApiTestCase(DBTestCase):
             'content_type': 'page',
             'locale': 'eng_GB',
             'multiple': True,
-            'app_uuid': uuid.uuid4().hex,
+            'app_uuid': self.app_uuid,
             'author_uuid': uuid.uuid4().hex,
             'content_uuid': uuid.uuid4().hex,
             'options': [
@@ -480,7 +496,8 @@ class QuestionApiTestCase(DBTestCase):
 
         # test get also returns same data
         resp = self.app.get(
-            '/questions/%s' % resp.json_body['uuid'])
+            '/questions/%s' % resp.json_body['uuid'],
+            params={'app_uuid': self.app_uuid})
         options = resp.json_body['options']
         self.assertEqual(resp.json_body['title'], data['title'])
         self.assertEqual(resp.json_body['short_name'], data['short_name'])
@@ -492,5 +509,21 @@ class QuestionApiTestCase(DBTestCase):
 
     def test_numeric_free_text_question(self):
         resp = self.app.get(
-            '/questions/%s' % self.question_5.uuid)
+            '/questions/%s' % self.question_5.uuid,
+            params={'app_uuid': self.app_uuid})
         self.assertEqual(resp.json_body, self.question_5.to_dict())
+
+    def test_get_question_for_content(self):
+        data = {
+            'app_uuid': self.question_2.app_uuid.hex,
+            'content_uuid': self.question_2.content_uuid.hex,
+        }
+        resp = self.app.get('/questions', params=data)
+        self.assertEqual(resp.json_body, [self.question_2.to_dict()])
+
+        data = {
+            'app_uuid': self.app_uuid,
+            'content_uuid': uuid.uuid4().hex,
+        }
+        resp = self.app.get('/questions', params=data)
+        self.assertEqual(resp.json_body, [])

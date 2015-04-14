@@ -3,17 +3,28 @@ from cornice.resource import resource, view
 from pyramid.exceptions import NotFound
 
 from unicore.ask.service.models import Question, QuestionOption
-from unicore.ask.service.schema import QuestionSchema
+from unicore.ask.service.schema import (
+    QuestionSchema, QuestionGetSchema, QuestionsGetSchema)
 
 
-def get_app_object(request):
+def get_question_object(request):
     uuid = request.matchdict['uuid']
-    question = request.db.query(Question).get(uuid)
+    app_uuid = request.validated['app_uuid']
+    question = request.db.query(
+        Question).filter_by(_uuid=uuid, app_uuid=app_uuid).first()
 
     if question is None:
         raise NotFound
 
     return question
+
+
+def get_questions(request):
+    query = {
+        'app_uuid': request.validated['app_uuid'],
+        'content_uuid': request.validated['content_uuid']
+    }
+    return request.db.query(Question).filter_by(**query)
 
 
 def get_option_object(request, uuid):
@@ -69,14 +80,19 @@ class QuestionResource(object):
         self.request.response.status_int = 201
         return new_data
 
-    @view(renderer='json')
+    @view(renderer='json', schema=QuestionGetSchema)
     def get(self):
-        question = get_app_object(self.request)
+        question = get_question_object(self.request)
         return question.to_dict()
+
+    @view(renderer='json', schema=QuestionsGetSchema)
+    def collection_get(self):
+        questions = get_questions(self.request)
+        return [q.to_dict() for q in questions]
 
     @view(renderer='json', schema=QuestionSchema)
     def put(self):
-        question = get_app_object(self.request)
+        question = get_question_object(self.request)
         for attr, value in self.request.validated.iteritems():
             if value is not None and not attr == 'options':
                 setattr(question, attr, value)

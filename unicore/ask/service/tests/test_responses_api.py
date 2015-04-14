@@ -18,11 +18,13 @@ class ResponsesApiTestCase(DBTestCase):
     def setUp(self):
         super(ResponsesApiTestCase, self).setUp()
 
+        self.app_uuid = uuid.uuid4()
+
         # Create Free Text Question
         self.question_1 = self.create_question(
             self.db, title='What is your name', short_name='name',
             question_type='free_text', author_uuid=uuid.uuid4(),
-            app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
+            app_uuid=self.app_uuid, content_uuid=uuid.uuid4(),
             content_type='page', options=[],
             locale='eng_GB')
         self.db.flush()
@@ -33,7 +35,7 @@ class ResponsesApiTestCase(DBTestCase):
             self.db,
             question_id=self.question_1.uuid,
             question_option_id=self.question_1_option.uuid,
-            app_uuid=uuid.uuid4(), user_uuid=uuid.uuid4(),
+            app_uuid=self.app_uuid, user_uuid=uuid.uuid4(),
             text='joe soap')
         self.db.flush()
 
@@ -41,7 +43,7 @@ class ResponsesApiTestCase(DBTestCase):
         self.question_2 = self.create_question(
             self.db, title='What is your age', short_name='age',
             question_type='multiple_choice', author_uuid=uuid.uuid4(),
-            app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
+            app_uuid=self.app_uuid, content_uuid=uuid.uuid4(),
             content_type='page', options=[],
             locale='eng_GB')
         self.db.flush()
@@ -59,7 +61,7 @@ class ResponsesApiTestCase(DBTestCase):
             self.db,
             question_id=self.question_2.uuid,
             question_option_id=self.age_option_3.uuid,
-            app_uuid=uuid.uuid4(), user_uuid=uuid.uuid4(),
+            app_uuid=self.app_uuid, user_uuid=uuid.uuid4(),
             text='30-49')
         self.db.flush()
 
@@ -67,7 +69,7 @@ class ResponsesApiTestCase(DBTestCase):
         self.question_3 = self.create_question(
             self.db, title='Which sports do you watch', short_name='sports',
             multiple=True, question_type='multiple_choice',
-            author_uuid=uuid.uuid4(), app_uuid=uuid.uuid4(),
+            author_uuid=uuid.uuid4(), app_uuid=self.app_uuid,
             content_uuid=uuid.uuid4(),
             content_type='page', options=[],
             locale='eng_GB')
@@ -88,20 +90,20 @@ class ResponsesApiTestCase(DBTestCase):
             self.db,
             question_id=self.question_3.uuid,
             question_option_id=self.sport_option_1.uuid,
-            app_uuid=uuid.uuid4(), user_uuid=uuid.uuid4(),
+            app_uuid=self.app_uuid, user_uuid=uuid.uuid4(),
             text='cricket')
         self.question_3_response_2 = self.create_question_response(
             self.db,
             question_id=self.question_3.uuid,
             question_option_id=self.sport_option_4.uuid,
-            app_uuid=uuid.uuid4(), user_uuid=uuid.uuid4(),
+            app_uuid=self.app_uuid, user_uuid=uuid.uuid4(),
             text='tennis')
         self.db.flush()
 
         self.question_5 = self.create_question(
             self.db, title='How old are you', short_name='age',
             question_type='free_text', numeric=True, author_uuid=uuid.uuid4(),
-            app_uuid=uuid.uuid4(), content_uuid=uuid.uuid4(),
+            app_uuid=self.app_uuid, content_uuid=uuid.uuid4(),
             content_type='page', options=[],
             locale='eng_GB')
         self.db.flush()
@@ -180,7 +182,7 @@ class ResponsesApiTestCase(DBTestCase):
         data = {
             'text': 'foobar',
             'option_uuid': self.question_1_option.uuid,
-            'app_uuid': uuid.uuid4().hex,
+            'app_uuid': self.app_uuid.hex,
             'user_uuid': uuid.uuid4().hex,
         }
         resp = self.app.post_json(
@@ -188,14 +190,14 @@ class ResponsesApiTestCase(DBTestCase):
         self.assertEqual(resp.json_body['text'], data['text'])
 
         resp = self.app.get(
-            '/questions/%s' % self.question_1.uuid)
+            '/questions/%s' % self.question_1.uuid, params=data)
         self.assertEqual(resp.json_body['options'][0]['responses_count'], 1)
 
     def test_numeric_free_text_question(self):
         data = {
             'text': 'foobar',
             'option_uuid': self.question_5_option.uuid,
-            'app_uuid': uuid.uuid4().hex,
+            'app_uuid': self.app_uuid.hex,
             'user_uuid': uuid.uuid4().hex,
         }
         resp = self.app.post_json('/responses', params=data, status=400)
