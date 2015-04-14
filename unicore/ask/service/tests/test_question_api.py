@@ -502,3 +502,10 @@ class QuestionApiTestCase(DBTestCase):
         }
         resp = self.app.get('/questions', params=data)
         self.assertEqual(resp.json_body, [self.question_2.to_dict()])
+
+        data = {
+            'app_uuid': uuid.uuid4().hex,
+            'content_uuid': uuid.uuid4().hex,
+        }
+        resp = self.app.get('/questions', params=data)
+        self.assertEqual(resp.json_body, [])
