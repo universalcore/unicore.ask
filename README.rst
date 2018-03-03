@@ -9,6 +9,6 @@ Universal Core REST service for Questions and Surveys.
     :target: https://coveralls.io/r/universalcore/unicore.ask?branch=develop
     :alt: Code Coverage
 
-.. image:: https://pypip.in/version/unicore.ask/badge.svg
+.. image:: https://img.shields.io/pypi/v/unicore.ask.svg
     :target: https://pypi.python.org/pypi/unicore.ask
     :alt: Pypi Package
