@@ -1,7 +1,7 @@
 pyramid==1.5.4
 pyramid-beaker==0.8
 raven==5.0.0
-colander==1.0
+colander==1.7.0
 cornice==0.18.1
 WebTest==2.0.18
 SQLAlchemy==0.9.8
